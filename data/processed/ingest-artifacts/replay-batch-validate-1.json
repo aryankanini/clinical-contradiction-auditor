@@ -1,0 +1,34 @@
+{
+  "artifact_id": "replay-batch-validate-1",
+  "provenance_id": "prov-batch-validate-1",
+  "snapshots": [
+    {
+      "record_id": "proc-1",
+      "resource_type": "Procedure",
+      "family": "Procedure",
+      "status": "completed",
+      "status_state": "valid",
+      "timestamps": {
+        "performedDateTime": null,
+        "occurrenceDateTime": null
+      },
+      "references": {
+        "subject": "Patient/pat-1",
+        "encounter": null,
+        "basedOn": null
+      },
+      "incomplete_fields": [
+        "timestamp"
+      ],
+      "unresolved_links": [
+        "subject"
+      ],
+      "governed_signals": [
+        "REL-PROCEDURE-SUBJECT"
+      ]
+    }
+  ],
+  "quarantined_records": [],
+  "loader_failures": [],
+  "storage_path": null
+}

@@ -1,0 +1,54 @@
+{
+  "artifact_id": "replay-batch-partial",
+  "provenance_id": "prov-batch-partial",
+  "snapshots": [
+    {
+      "record_id": "cond-1",
+      "resource_type": "Condition",
+      "family": "Condition",
+      "status": null,
+      "status_state": "missing",
+      "timestamps": {
+        "recordedDate": null,
+        "onsetDateTime": null
+      },
+      "references": {
+        "subject": null,
+        "encounter": null
+      },
+      "incomplete_fields": [
+        "status",
+        "timestamp"
+      ],
+      "unresolved_links": [],
+      "governed_signals": [
+        "REL-CONDITION-ENCOUNTER"
+      ]
+    },
+    {
+      "record_id": "obs-1",
+      "resource_type": "Observation",
+      "family": "Observation",
+      "status": null,
+      "status_state": "missing",
+      "timestamps": {
+        "effectiveDateTime": null,
+        "issued": null
+      },
+      "references": {
+        "subject": null,
+        "encounter": null,
+        "basedOn": null
+      },
+      "incomplete_fields": [
+        "status",
+        "timestamp"
+      ],
+      "unresolved_links": [],
+      "governed_signals": []
+    }
+  ],
+  "quarantined_records": [],
+  "loader_failures": [],
+  "storage_path": null
+}

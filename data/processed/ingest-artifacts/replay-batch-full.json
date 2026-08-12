@@ -1,0 +1,145 @@
+{
+  "artifact_id": "replay-batch-full",
+  "provenance_id": "prov-batch-full",
+  "snapshots": [
+    {
+      "record_id": "cond-1",
+      "resource_type": "Condition",
+      "family": "Condition",
+      "status": null,
+      "status_state": "missing",
+      "timestamps": {
+        "recordedDate": null,
+        "onsetDateTime": null
+      },
+      "references": {
+        "subject": null,
+        "encounter": null
+      },
+      "incomplete_fields": [
+        "status",
+        "timestamp"
+      ],
+      "unresolved_links": [],
+      "governed_signals": [
+        "REL-CONDITION-ENCOUNTER"
+      ]
+    },
+    {
+      "record_id": "med-1",
+      "resource_type": "MedicationRequest",
+      "family": "Medication",
+      "status": null,
+      "status_state": "missing",
+      "timestamps": {
+        "authoredOn": null
+      },
+      "references": {
+        "subject": null,
+        "encounter": null,
+        "basedOn": null
+      },
+      "incomplete_fields": [
+        "status",
+        "timestamp"
+      ],
+      "unresolved_links": [],
+      "governed_signals": [
+        "REL-MEDICATIONREQUEST-SUBJECT"
+      ]
+    },
+    {
+      "record_id": "proc-1",
+      "resource_type": "Procedure",
+      "family": "Procedure",
+      "status": null,
+      "status_state": "missing",
+      "timestamps": {
+        "performedDateTime": null,
+        "occurrenceDateTime": null
+      },
+      "references": {
+        "subject": null,
+        "encounter": null,
+        "basedOn": null
+      },
+      "incomplete_fields": [
+        "status",
+        "timestamp"
+      ],
+      "unresolved_links": [],
+      "governed_signals": [
+        "REL-PROCEDURE-SUBJECT"
+      ]
+    },
+    {
+      "record_id": "enc-1",
+      "resource_type": "Encounter",
+      "family": "Encounter",
+      "status": null,
+      "status_state": "missing",
+      "timestamps": {
+        "start": null
+      },
+      "references": {
+        "subject": null,
+        "basedOn": null
+      },
+      "incomplete_fields": [
+        "status",
+        "timestamp"
+      ],
+      "unresolved_links": [],
+      "governed_signals": []
+    },
+    {
+      "record_id": "obs-1",
+      "resource_type": "Observation",
+      "family": "Observation",
+      "status": null,
+      "status_state": "missing",
+      "timestamps": {
+        "effectiveDateTime": null,
+        "issued": null
+      },
+      "references": {
+        "subject": null,
+        "encounter": null,
+        "basedOn": null
+      },
+      "incomplete_fields": [
+        "status",
+        "timestamp"
+      ],
+      "unresolved_links": [],
+      "governed_signals": []
+    },
+    {
+      "record_id": "care-1",
+      "resource_type": "CarePlan",
+      "family": "CarePlan",
+      "status": null,
+      "status_state": "missing",
+      "timestamps": {
+        "start": null,
+        "created": null
+      },
+      "references": {
+        "subject": null,
+        "encounter": null,
+        "basedOn": null
+      },
+      "incomplete_fields": [
+        "status",
+        "timestamp"
+      ],
+      "unresolved_links": [],
+      "governed_signals": [
+        "REL-CAREPLAN-SUBJECT"
+      ]
+    }
+  ],
+  "quarantined_records": [],
+  "loader_failures": [],
+  "storage_path": null
+}

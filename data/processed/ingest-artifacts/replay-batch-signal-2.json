@@ -1,0 +1,29 @@
+{
+  "artifact_id": "replay-batch-signal-2",
+  "provenance_id": "prov-batch-signal-2",
+  "snapshots": [
+    {
+      "record_id": "condition-1",
+      "resource_type": "Condition",
+      "family": "Condition",
+      "status": "active",
+      "status_state": "valid",
+      "timestamps": {
+        "recordedDate": "2026-08-12T10:00:00Z",
+        "onsetDateTime": null
+      },
+      "references": {
+        "subject": null,
+        "encounter": null
+      },
+      "incomplete_fields": [],
+      "unresolved_links": [],
+      "governed_signals": [
+        "REL-CONDITION-ENCOUNTER"
+      ]
+    }
+  ],
+  "quarantined_records": [],
+  "loader_failures": [],
+  "storage_path": null
+}

@@ -1,0 +1,31 @@
+{
+  "artifact_id": "replay-batch-norm-missing",
+  "provenance_id": "prov-batch-norm-missing",
+  "snapshots": [
+    {
+      "record_id": "obs-1",
+      "resource_type": "Observation",
+      "family": "Observation",
+      "status": null,
+      "status_state": "missing",
+      "timestamps": {
+        "effectiveDateTime": null,
+        "issued": null
+      },
+      "references": {
+        "subject": null,
+        "encounter": null,
+        "basedOn": null
+      },
+      "incomplete_fields": [
+        "status",
+        "timestamp"
+      ],
+      "unresolved_links": [],
+      "governed_signals": []
+    }
+  ],
+  "quarantined_records": [],
+  "loader_failures": [],
+  "storage_path": null
+}

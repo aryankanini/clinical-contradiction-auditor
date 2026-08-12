@@ -1,0 +1,4 @@
+# The current data-integration / ingestion slice uses only the Python standard library.
+# No third-party runtime dependencies are required at this stage.
+#
+# Test execution uses the built-in `unittest` module.
