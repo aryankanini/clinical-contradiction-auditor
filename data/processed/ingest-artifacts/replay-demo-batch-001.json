@@ -1,0 +1,67 @@
+{
+  "artifact_id": "replay-demo-batch-001",
+  "provenance_id": "prov-demo-batch-001",
+  "snapshots": [
+    {
+      "record_id": "condition-1",
+      "resource_type": "Condition",
+      "family": "Condition",
+      "status": "active",
+      "status_state": "derived",
+      "timestamps": {
+        "recordedDate": "2026-08-12T10:00:00Z",
+        "onsetDateTime": null
+      },
+      "references": {
+        "subject": null,
+        "encounter": null
+      },
+      "incomplete_fields": [],
+      "unresolved_links": [],
+      "governed_signals": [
+        "REL-CONDITION-ENCOUNTER"
+      ]
+    },
+    {
+      "record_id": "encounter-1",
+      "resource_type": "Encounter",
+      "family": "Encounter",
+      "status": "finished",
+      "status_state": "valid",
+      "timestamps": {
+        "start": "2026-08-12T10:15:00Z"
+      },
+      "references": {
+        "subject": null,
+        "basedOn": null
+      },
+      "incomplete_fields": [],
+      "unresolved_links": [],
+      "governed_signals": []
+    },
+    {
+      "record_id": "observation-1",
+      "resource_type": "Observation",
+      "family": "Observation",
+      "status": "final",
+      "status_state": "valid",
+      "timestamps": {
+        "effectiveDateTime": null,
+        "issued": null
+      },
+      "references": {
+        "subject": null,
+        "encounter": null,
+        "basedOn": null
+      },
+      "incomplete_fields": [
+        "timestamp"
+      ],
+      "unresolved_links": [],
+      "governed_signals": []
+    }
+  ],
+  "quarantined_records": [],
+  "loader_failures": [],
+  "storage_path": null
+}

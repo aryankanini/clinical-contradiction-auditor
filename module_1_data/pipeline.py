@@ -12,6 +12,9 @@ from module_1_data.ingestion.parser import (
 	validate_batch_contract,
 )
 from module_1_data.persistence.artifact_store import load_replay_artifact, persist_ingest_artifacts
+from module_1_data.persistence.database_store import IngestionDatabaseStore
+from shared.database.config import DatabaseConfig
+from shared.database.session import create_all_tables, create_engine_from_config, create_session_factory, create_session_factory_for_engine
 from shared.models.ingest_provenance import IngestProvenance
 from shared.models.replay_artifact import ReplayArtifact
 from shared.models.staged_resource import IngestRunResult
@@ -96,7 +99,11 @@ def reconstruct_ingest_output_from_path(replay_artifact_path: str | Path) -> lis
 	return load_replay_artifact(replay_artifact_path).reconstruct()
 
 
-def ingest_batch(payload: Mapping[str, Any], artifact_dir: str | Path | None = None) -> IngestRunResult:
+def ingest_batch(
+	payload: Mapping[str, Any],
+	artifact_dir: str | Path | None = None,
+	database_url: str | None = None,
+) -> IngestRunResult:
 	validation_result = validate_batch_contract(payload)
 	metadata: Dict[str, Any] = dict(validation_result.metadata)
 
@@ -145,6 +152,28 @@ def ingest_batch(payload: Mapping[str, Any], artifact_dir: str | Path | None = N
 		provenance = replace(provenance, storage_path=artifact_paths["provenance_path"])
 		replay_artifact = replace(replay_artifact, storage_path=artifact_paths["replay_artifact_path"])
 		metadata.update(artifact_paths)
+		if database_url is not None:
+			config = DatabaseConfig(url=database_url)
+			engine = create_engine_from_config(config)
+			try:
+				create_all_tables(engine)
+				session_factory = create_session_factory_for_engine(engine)
+				batch_row_id = IngestionDatabaseStore(session_factory).persist_ingest_run(payload, IngestRunResult(
+					status=validation_result.status,
+					metadata=metadata,
+					staged_resources=staged_resources,
+					quarantined_records=validation_result.quarantined_records,
+					validation_errors=[error.__dict__ for error in validation_result.errors],
+					loader_failures=loader_failures,
+					normalized_resources=normalized_resources,
+					validation_states=validation_states,
+					governed_signals=governed_signals,
+					provenance=provenance,
+					replay_artifact=replay_artifact,
+				))
+				metadata["database_batch_id"] = batch_row_id
+			finally:
+				engine.dispose()
 	else:
 		metadata.update({"loader_success_count": 0, "loader_failure_count": 0})
 

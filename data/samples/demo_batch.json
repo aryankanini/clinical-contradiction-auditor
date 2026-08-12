@@ -1,0 +1,27 @@
+{
+  "batch_id": "demo-batch-001",
+  "source": "ehr-a",
+  "records": [
+    {
+      "id": "condition-1",
+      "resourceType": "Condition",
+      "clinicalStatus": {
+        "text": "active"
+      },
+      "recordedDate": "2026-08-12T10:00:00Z"
+    },
+    {
+      "id": "encounter-1",
+      "resourceType": "Encounter",
+      "status": "finished",
+      "period": {
+        "start": "2026-08-12T10:15:00Z"
+      }
+    },
+    {
+      "id": "observation-1",
+      "resourceType": "Observation",
+      "status": "final"
+    }
+  ]
+}

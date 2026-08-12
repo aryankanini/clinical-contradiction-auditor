@@ -1,0 +1,23 @@
+{
+  "provenance_id": "prov-demo-batch-001",
+  "batch_id": "demo-batch-001",
+  "source": "ehr-a",
+  "ingest_status": "accepted",
+  "counts": {
+    "accepted_count": 3,
+    "quarantined_count": 0,
+    "loader_success_count": 3,
+    "loader_failure_count": 0
+  },
+  "normalization_summary": {
+    "normalized_resource_count": 3,
+    "derived_status_count": 1
+  },
+  "validation_summary": {
+    "rule_ready_count": 2,
+    "generic_incomplete_count": 1,
+    "governed_signal_count": 1
+  },
+  "replay_artifact_id": "replay-demo-batch-001",
+  "storage_path": null
+}
