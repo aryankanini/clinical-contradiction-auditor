@@ -22,8 +22,8 @@
     "counting_method": "tiktoken"
   },
   "created_at": "2026-08-12T14:56:24",
-  "updated_at": "2026-08-12T14:56:24",
-  "_cumulative_input_tokens": 167,
+  "updated_at": "2026-08-12T17:22:06",
+  "_cumulative_input_tokens": 172,
   "turns": [
     {
       "turn_id": 1,
@@ -42,6 +42,24 @@
         }
       ],
       "gen_ai.usage.input_tokens": 167
+    },
+    {
+      "turn_id": 2,
+      "event.name": "gen_ai.client.inference.operation.details",
+      "start_time": "2026-08-12T17:22:06",
+      "gen_ai.operation.name": "chat",
+      "gen_ai.input.messages": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "text",
+              "content": "update the .gitignore"
+            }
+          ]
+        }
+      ],
+      "gen_ai.usage.input_tokens": 172
     }
   ]
 }
