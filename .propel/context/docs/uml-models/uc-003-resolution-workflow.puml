@@ -1,0 +1,17 @@
+@startuml
+left to right direction
+actor "Clinical Data Steward" as Steward
+actor "Owner Team" as Owner
+rectangle "Clinical Data Integrity Auditor" {
+  usecase "Generate Resolution Draft" as C1
+  usecase "Approve/Edit Resolution" as C2
+  usecase "Route to Owner Queue" as C3
+  usecase "Track to Closure" as C4
+}
+Steward --> C1
+Steward --> C2
+Steward --> C3
+Owner --> C3
+Owner --> C4
+Steward --> C4
+@enduml

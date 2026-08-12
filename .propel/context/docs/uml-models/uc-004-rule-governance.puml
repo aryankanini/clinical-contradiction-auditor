@@ -1,0 +1,14 @@
+@startuml
+left to right direction
+actor "Clinical Informatics Analyst" as Analyst
+rectangle "Clinical Data Integrity Auditor" {
+  usecase "Submit Rule Changes" as D1
+  usecase "Validate Rule Pack" as D2
+  usecase "Publish Version" as D3
+  usecase "Activate Version" as D4
+}
+Analyst --> D1
+D1 --> D2
+D2 --> D3
+D3 --> D4
+@enduml

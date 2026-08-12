@@ -1,0 +1,16 @@
+@startuml
+left to right direction
+actor "Clinical Data Steward" as Steward
+actor "Clinical Informatics Analyst" as Analyst
+rectangle "Clinical Data Integrity Auditor" {
+  usecase "Open Prioritized Queue" as B1
+  usecase "Inspect Evidence\nand AI Context" as B2
+  usecase "Set Triage Disposition" as B3
+  usecase "Escalate Dispute" as B4
+}
+Steward --> B1
+Steward --> B2
+Steward --> B3
+Steward --> B4
+Analyst --> B4
+@enduml

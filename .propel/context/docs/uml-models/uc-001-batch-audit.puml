@@ -1,0 +1,14 @@
+@startuml
+left to right direction
+actor "EHR/FHIR Data Source" as FHIR
+rectangle "Clinical Data Integrity Auditor" {
+  usecase "Ingest FHIR Batch" as A1
+  usecase "Normalize\nCross-resource Fields" as A2
+  usecase "Run Deterministic\nRule Checks" as A3
+  usecase "Persist Findings" as A4
+}
+FHIR --> A1
+A1 --> A2
+A2 --> A3
+A3 --> A4
+@enduml
