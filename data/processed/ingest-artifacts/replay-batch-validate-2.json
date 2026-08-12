@@ -1,0 +1,49 @@
+{
+  "artifact_id": "replay-batch-validate-2",
+  "provenance_id": "prov-batch-validate-2",
+  "snapshots": [
+    {
+      "record_id": "enc-1",
+      "resource_type": "Encounter",
+      "family": "Encounter",
+      "status": "finished",
+      "status_state": "valid",
+      "timestamps": {
+        "start": "2026-08-12T10:00:00Z"
+      },
+      "references": {
+        "subject": "Patient/pat-1",
+        "basedOn": null
+      },
+      "incomplete_fields": [],
+      "unresolved_links": [
+        "subject"
+      ],
+      "governed_signals": []
+    },
+    {
+      "record_id": "obs-1",
+      "resource_type": "Observation",
+      "family": "Observation",
+      "status": "final",
+      "status_state": "valid",
+      "timestamps": {
+        "effectiveDateTime": null,
+        "issued": null
+      },
+      "references": {
+        "subject": null,
+        "encounter": null,
+        "basedOn": null
+      },
+      "incomplete_fields": [
+        "timestamp"
+      ],
+      "unresolved_links": [],
+      "governed_signals": []
+    }
+  ],
+  "quarantined_records": [],
+  "loader_failures": [],
+  "storage_path": null
+}

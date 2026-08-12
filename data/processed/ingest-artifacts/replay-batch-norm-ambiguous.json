@@ -1,0 +1,28 @@
+{
+  "artifact_id": "replay-batch-norm-ambiguous",
+  "provenance_id": "prov-batch-norm-ambiguous",
+  "snapshots": [
+    {
+      "record_id": "obs-1",
+      "resource_type": "Observation",
+      "family": "Observation",
+      "status": "final",
+      "status_state": "valid",
+      "timestamps": {
+        "effectiveDateTime": "2026-08-12T10:00:00Z",
+        "issued": "2026-08-12T11:00:00Z"
+      },
+      "references": {
+        "subject": null,
+        "encounter": null,
+        "basedOn": null
+      },
+      "incomplete_fields": [],
+      "unresolved_links": [],
+      "governed_signals": []
+    }
+  ],
+  "quarantined_records": [],
+  "loader_failures": [],
+  "storage_path": null
+}

@@ -1,0 +1,30 @@
+{
+  "artifact_id": "replay-batch-signal-1",
+  "provenance_id": "prov-batch-signal-1",
+  "snapshots": [
+    {
+      "record_id": "obs-1",
+      "resource_type": "Observation",
+      "family": "Observation",
+      "status": "final",
+      "status_state": "valid",
+      "timestamps": {
+        "effectiveDateTime": null,
+        "issued": null
+      },
+      "references": {
+        "subject": null,
+        "encounter": null,
+        "basedOn": null
+      },
+      "incomplete_fields": [
+        "timestamp"
+      ],
+      "unresolved_links": [],
+      "governed_signals": []
+    }
+  ],
+  "quarantined_records": [],
+  "loader_failures": [],
+  "storage_path": null
+}

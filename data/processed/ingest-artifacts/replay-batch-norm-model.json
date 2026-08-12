@@ -1,0 +1,28 @@
+{
+  "artifact_id": "replay-batch-norm-model",
+  "provenance_id": "prov-batch-norm-model",
+  "snapshots": [
+    {
+      "record_id": "enc-1",
+      "resource_type": "Encounter",
+      "family": "Encounter",
+      "status": "finished",
+      "status_state": "valid",
+      "timestamps": {
+        "start": "2026-08-12T10:00:00Z"
+      },
+      "references": {
+        "subject": "Patient/pat-1",
+        "basedOn": null
+      },
+      "incomplete_fields": [],
+      "unresolved_links": [
+        "subject"
+      ],
+      "governed_signals": []
+    }
+  ],
+  "quarantined_records": [],
+  "loader_failures": [],
+  "storage_path": null
+}
