@@ -1,0 +1,23 @@
+{
+  "provenance_id": "prov-batch-partial",
+  "batch_id": "batch-partial",
+  "source": "ehr-a",
+  "ingest_status": "accepted",
+  "counts": {
+    "accepted_count": 2,
+    "quarantined_count": 0,
+    "loader_success_count": 2,
+    "loader_failure_count": 0
+  },
+  "normalization_summary": {
+    "normalized_resource_count": 2,
+    "derived_status_count": 0
+  },
+  "validation_summary": {
+    "rule_ready_count": 0,
+    "generic_incomplete_count": 2,
+    "governed_signal_count": 1
+  },
+  "replay_artifact_id": "replay-batch-partial",
+  "storage_path": null
+}

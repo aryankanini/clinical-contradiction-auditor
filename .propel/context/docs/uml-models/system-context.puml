@@ -1,0 +1,22 @@
+@startuml
+left to right direction
+actor "Clinical Data Steward" as Steward
+actor "Clinical Informatics Analyst" as Analyst
+actor "Compliance/Risk Reviewer" as Compliance
+rectangle "AI-Powered Clinical Data Integrity Auditor" as Auditor {
+  usecase "Run Deterministic\nAudit" as U1
+  usecase "Review Findings\nwith Evidence" as U2
+  usecase "Manage Resolution\nWorkflow" as U3
+  usecase "Export Audit\nArtifacts" as U4
+}
+cloud "EHR/FHIR Data Source" as FHIR
+database "Rule Management Service" as Rules
+
+FHIR --> U1 : FHIR bundles
+Rules --> U1 : Rule pack + version
+Steward --> U2
+Steward --> U3
+Analyst --> U2
+Compliance --> U4
+U2 --> U4 : Traceable finding metadata
+@enduml

@@ -1,0 +1,14 @@
+@startuml
+left to right direction
+actor "Compliance/Risk Reviewer" as Reviewer
+rectangle "Clinical Data Integrity Auditor" {
+  usecase "Select Sample" as E1
+  usecase "Retrieve Trace Artifacts" as E2
+  usecase "Export Evidence Bundle" as E3
+  usecase "Record Verification Outcome" as E4
+}
+Reviewer --> E1
+Reviewer --> E2
+Reviewer --> E3
+Reviewer --> E4
+@enduml

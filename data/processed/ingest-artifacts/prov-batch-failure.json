@@ -1,0 +1,23 @@
+{
+  "provenance_id": "prov-batch-failure",
+  "batch_id": "batch-failure",
+  "source": "ehr-a",
+  "ingest_status": "partial-ingest",
+  "counts": {
+    "accepted_count": 1,
+    "quarantined_count": 1,
+    "loader_success_count": 1,
+    "loader_failure_count": 0
+  },
+  "normalization_summary": {
+    "normalized_resource_count": 1,
+    "derived_status_count": 0
+  },
+  "validation_summary": {
+    "rule_ready_count": 0,
+    "generic_incomplete_count": 1,
+    "governed_signal_count": 1
+  },
+  "replay_artifact_id": "replay-batch-failure",
+  "storage_path": null
+}

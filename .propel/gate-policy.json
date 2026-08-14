@@ -1,0 +1,46 @@
+{
+  "$comment": "Policy FLOOR for gated workflow runs (StartWorkflowRun/CompleteRunStep/SubmitGateDecision on the propel-sdlc MCP server). Read client-side and passed as the gatePolicyJson argument -- the server has no repo access and never reads this file itself. Mandates here cannot be lowered by --approve= at invocation time. `default` is a starting value and IS overridable. Match granularity: `workflow` (whole workflow), `workflow`+`step` (a specific step id, e.g. \"S1\" -- opaque/positional, breaks silently if step ids get reshuffled across a manifest version bump), `workflow`+`prompt` (a specific prompt by its stable name, e.g. \"create-spec\" -- PREFERRED over `step` for exactly this reason), `artifact_key` (real project-config.json keys), or `ai_signal`. Fields combine with AND within one mandate; add separate mandate entries for OR. Omitting `workflow` on a `prompt` match makes it global -- every workflow that runs that prompt inherits the mandate, not just one.",
+  "mandatory": [
+    {
+      "match": {
+        "artifact_key": "prototype"
+      },
+      "gate": "always",
+      "reason": "Prototype output touches real code paths and must be reviewed before any merge, regardless of caller request"
+    },
+    {
+      "match": {
+        "workflow": "technical-discovery",
+        "prompt": "create-spec"
+      },
+      "gate": "always",
+      "reason": "Requirements sign-off is contractual"
+    },
+    {
+      "match": {
+        "workflow": "technical-discovery",
+        "prompt": "design-architecture"
+      },
+      "gate": "always",
+      "reason": "Architecture decisions require human review before downstream steps (modeling, UI spec) build on them"
+    },
+    {
+      "match": {
+        "ai_signal": true
+      },
+      "gate": "always",
+      "reason": "AI-classified scope requires human sign-off"
+    }
+  ],
+  "default": "conditional",
+  "merge": {
+    "strategy": "pr",
+    "base": "main",
+    "auto_merge_when": {
+      "actor": "human"
+    },
+    "require_checks": true,
+    "forbid_admin_merge": true,
+    "unattended_keys": []
+  }
+}
