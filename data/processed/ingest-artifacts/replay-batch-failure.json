@@ -1,0 +1,36 @@
+{
+  "artifact_id": "replay-batch-failure",
+  "provenance_id": "prov-batch-failure",
+  "snapshots": [
+    {
+      "record_id": "cond-1",
+      "resource_type": "Condition",
+      "family": "Condition",
+      "status": null,
+      "status_state": "missing",
+      "timestamps": {
+        "recordedDate": null,
+        "onsetDateTime": null
+      },
+      "references": {
+        "subject": null,
+        "encounter": null
+      },
+      "incomplete_fields": [
+        "status",
+        "timestamp"
+      ],
+      "unresolved_links": [],
+      "governed_signals": [
+        "REL-CONDITION-ENCOUNTER"
+      ]
+    }
+  ],
+  "quarantined_records": [
+    {
+      "resourceType": "Observation"
+    }
+  ],
+  "loader_failures": [],
+  "storage_path": null
+}

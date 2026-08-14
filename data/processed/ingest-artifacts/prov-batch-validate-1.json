@@ -1,0 +1,23 @@
+{
+  "provenance_id": "prov-batch-validate-1",
+  "batch_id": "batch-validate-1",
+  "source": "ehr-a",
+  "ingest_status": "accepted",
+  "counts": {
+    "accepted_count": 1,
+    "quarantined_count": 0,
+    "loader_success_count": 1,
+    "loader_failure_count": 0
+  },
+  "normalization_summary": {
+    "normalized_resource_count": 1,
+    "derived_status_count": 0
+  },
+  "validation_summary": {
+    "rule_ready_count": 0,
+    "generic_incomplete_count": 1,
+    "governed_signal_count": 1
+  },
+  "replay_artifact_id": "replay-batch-validate-1",
+  "storage_path": null
+}
