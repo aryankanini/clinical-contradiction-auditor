@@ -34,6 +34,16 @@ ENV/
 env/
 .venv/
 
+# Node / frontend (module_4_api_ui/frontend)
+node_modules/
+.vite/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.eslintcache
+
 # IDE & Editor
 .vscode/
 .idea/
@@ -68,6 +78,7 @@ htmlcov/
 
 # Artifacts & Generated Files
 data/processed/ingest-artifacts/
+data/processed/compliance-exports/
 data/processed/*.db
 data/processed/*.sqlite*
 
