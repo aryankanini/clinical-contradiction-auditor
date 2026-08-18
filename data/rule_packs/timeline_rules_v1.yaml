@@ -1,0 +1,10 @@
+metadata:
+  pack_id: PACK-TIMELINE-001
+  version: 1.0.0
+  description: Deterministic timeline and lifecycle validation rules.
+  author: Clinical Engineering Team
+  organization: Healthcare System
+rules:
+  - {rule_id: RULE-STALE-001, version: 1.0.0, name: Stale Active State, description: Active resource exceeds stale threshold., category: timeline, enabled: true}
+  - {rule_id: RULE-TEMPORAL-001, version: 1.0.0, name: Temporal Ordering Violation, description: Resource start date follows end date., category: timeline, enabled: true}
+  - {rule_id: RULE-LIFECYCLE-001, version: 1.0.0, name: Invalid State Lifecycle Transition, description: Terminal state transitions to active., category: timeline, enabled: true}

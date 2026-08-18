@@ -1,0 +1,20 @@
+@startuml UC-4-Assignment-Tracking
+left to right direction
+actor "Data Steward" as Steward
+actor "Assignee" as Assignee
+actor "Compliance Officer" as Officer
+rectangle "Resolution Workflow" {
+  usecase "Query Findings" as UC4_1
+  usecase "Review Details" as UC4_2
+  usecase "Assign to Queue" as UC4_3
+  usecase "Notify Assignee" as UC4_4
+  usecase "Track Status" as UC4_5
+}
+Steward --> UC4_1
+Steward --> UC4_2
+Steward --> UC4_3
+UC4_3 --> UC4_4
+UC4_4 --> Assignee
+Assignee --> UC4_5
+Officer --> UC4_5
+@enduml

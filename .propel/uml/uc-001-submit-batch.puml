@@ -1,0 +1,20 @@
+@startuml UC-1-Submit-FHIR-Batch
+left to right direction
+actor "Data Engineer" as Engineer
+actor "Clinical System" as EHR
+rectangle "FHIR Batch Audit System" {
+  usecase "Submit Batch" as UC1
+  usecase "Validate Envelope" as UC1_1
+  usecase "Stage Records" as UC1_2
+  usecase "Normalize Fields" as UC1_3
+  usecase "Assess Completeness" as UC1_4
+  usecase "Persist Artifacts" as UC1_5
+}
+Engineer --> UC1
+EHR --> UC1
+UC1 --> UC1_1
+UC1 --> UC1_2
+UC1 --> UC1_3
+UC1 --> UC1_4
+UC1 --> UC1_5
+@enduml
