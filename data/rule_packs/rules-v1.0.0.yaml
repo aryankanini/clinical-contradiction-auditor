@@ -1,0 +1,50 @@
+metadata:
+  pack_id: PACK-CLINICAL-001
+  version: 1.0.0
+  created_at: 2026-08-17T10:00:00
+  description: Clinical contradiction detection rules for diagnoses, medications, and timelines
+  author: Clinical Engineering Team
+  organization: Healthcare System
+
+rules:
+  - rule_id: RULE-COND-001
+    version: 1.0.0
+    name: Conflicting Condition Dates
+    description: Detects conditions with end_date before start_date
+    category: diagnosis
+    enabled: true
+
+  - rule_id: RULE-COND-002
+    version: 1.0.0
+    name: Duplicate Active Conditions
+    description: Detects duplicate active diagnoses for same patient
+    category: diagnosis
+    enabled: true
+
+  - rule_id: RULE-MED-001
+    version: 1.0.0
+    name: Conflicting Medication Dates
+    description: Detects medications with end_date before start_date
+    category: medication
+    enabled: true
+
+  - rule_id: RULE-MED-002
+    version: 1.0.0
+    name: Duplicate Active Medications
+    description: Detects duplicate active medications for same patient
+    category: medication
+    enabled: true
+
+  - rule_id: RULE-TIMELINE-001
+    version: 1.0.0
+    name: Diagnosis Before Birth
+    description: Detects conditions occurring before patient birth date
+    category: timeline
+    enabled: true
+
+  - rule_id: RULE-TIMELINE-002
+    version: 1.0.0
+    name: Encounter After Death
+    description: Detects encounters occurring after patient death date
+    category: timeline
+    enabled: true

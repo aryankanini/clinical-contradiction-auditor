@@ -1,0 +1,19 @@
+@startuml UC-3-AI-Explanation
+left to right direction
+actor "AI Orchestrator" as AI
+actor "LLM Provider" as LLM
+actor "Compliance Officer" as Officer
+rectangle "AI-Driven Explanation" {
+  usecase "Format Context" as UC3_1
+  usecase "Generate Explanation" as UC3_2
+  usecase "Validate Constraints" as UC3_3
+  usecase "Store Explanation" as UC3_4
+}
+AI --> UC3_1
+AI --> UC3_2
+UC3_2 --> LLM
+LLM --> UC3_2
+AI --> UC3_3
+AI --> UC3_4
+Officer --> UC3_4
+@enduml

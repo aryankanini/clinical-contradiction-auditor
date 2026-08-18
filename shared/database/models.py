@@ -2,7 +2,19 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import (
+	JSON,
+	Boolean,
+	CheckConstraint,
+	DateTime,
+	event,
+	ForeignKey,
+	Integer,
+	String,
+	Text,
+	UniqueConstraint,
+	func,
+)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -95,14 +107,136 @@ class GovernedRelationshipSignalRow(Base):
 
 class RulePackRow(Base):
 	__tablename__ = "rule_packs"
+	__table_args__ = (
+		UniqueConstraint("rule_pack_id", "version", name="uq_rule_packs_identity"),
+		CheckConstraint(
+			"status IN ('ACTIVE', 'ARCHIVED', 'DEPRECATED')",
+			name="rule_packs_status",
+		),
+	)
 
 	id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-	version: Mapped[str] = mapped_column(String(64), unique=True, index=True)
-	status: Mapped[str] = mapped_column(String(32), index=True)
+	rule_pack_id: Mapped[str] = mapped_column(String(128), index=True)
+	version: Mapped[str] = mapped_column(String(64), index=True)
+	status: Mapped[str] = mapped_column(String(32), index=True, default="ACTIVE")
+	created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+	updated_at: Mapped[datetime] = mapped_column(
+		DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+	)
+	archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 	published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 	metadata_json: Mapped[dict] = mapped_column(JSON_TYPE)
 
+	rules: Mapped[list["RulePackRuleRow"]] = relationship(
+		back_populates="rule_pack", cascade="all, delete-orphan"
+	)
+	execution_plans: Mapped[list["ExecutionPlanRow"]] = relationship(back_populates="rule_pack")
+	audit_trails: Mapped[list["AuditTrailRow"]] = relationship(back_populates="rule_pack")
 	audit_runs: Mapped[list["AuditRunRow"]] = relationship(back_populates="rule_pack")
+
+
+class RulePackRuleRow(Base):
+	__tablename__ = "rule_pack_rules"
+	__table_args__ = (
+		UniqueConstraint("rule_pack_id", "rule_id", name="uq_rule_pack_rules_identity"),
+	)
+
+	id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+	rule_pack_id: Mapped[int] = mapped_column(
+		ForeignKey("rule_packs.id", ondelete="CASCADE"), index=True
+	)
+	rule_id: Mapped[str] = mapped_column(String(128), index=True)
+	rule_version: Mapped[str] = mapped_column(String(64))
+	category: Mapped[str] = mapped_column(String(64))
+	position_in_pack: Mapped[int] = mapped_column(Integer)
+	created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+	rule_pack: Mapped[RulePackRow] = relationship(back_populates="rules")
+
+
+class ExecutionPlanRow(Base):
+	__tablename__ = "execution_plans"
+	__table_args__ = (
+		CheckConstraint(
+			"status IN ('PLANNED', 'EXECUTING', 'COMPLETE', 'FAILED')",
+			name="execution_plans_status",
+		),
+	)
+
+	id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+	batch_run_id: Mapped[str] = mapped_column(String(36), unique=True, index=True)
+	rule_pack_id: Mapped[int] = mapped_column(
+		ForeignKey("rule_packs.id", ondelete="RESTRICT"), index=True
+	)
+	status: Mapped[str] = mapped_column(String(32), index=True, default="PLANNED")
+	created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+	executed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+	completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+	error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+	execution_time_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
+	rule_pack: Mapped[RulePackRow] = relationship(back_populates="execution_plans")
+	rules: Mapped[list["ExecutionPlanRuleRow"]] = relationship(
+		back_populates="execution_plan", cascade="all, delete-orphan"
+	)
+
+
+class ExecutionPlanRuleRow(Base):
+	__tablename__ = "execution_plan_rules"
+	__table_args__ = (
+		UniqueConstraint(
+			"execution_plan_id", "execution_order", name="uq_execution_plan_rules_order"
+		),
+		CheckConstraint(
+			"status IN ('PENDING', 'EXECUTING', 'COMPLETE', 'FAILED')",
+			name="execution_plan_rules_status",
+		),
+	)
+
+	id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+	execution_plan_id: Mapped[int] = mapped_column(
+		ForeignKey("execution_plans.id", ondelete="CASCADE"), index=True
+	)
+	rule_id: Mapped[str] = mapped_column(String(128), index=True)
+	execution_order: Mapped[int] = mapped_column(Integer)
+	status: Mapped[str] = mapped_column(String(32), default="PENDING")
+	execution_time_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+	findings_count: Mapped[int] = mapped_column(Integer, default=0)
+	error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+	execution_plan: Mapped[ExecutionPlanRow] = relationship(back_populates="rules")
+
+
+class AuditTrailRow(Base):
+	__tablename__ = "audit_trail"
+	__table_args__ = (
+		CheckConstraint(
+			"status IN ('SUCCESS', 'PARTIAL_SUCCESS', 'FAILED')",
+			name="audit_trail_status",
+		),
+	)
+
+	id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+	batch_run_id: Mapped[str] = mapped_column(String(36), unique=True, index=True)
+	rule_pack_version: Mapped[str] = mapped_column(String(64))
+	rule_pack_id: Mapped[int] = mapped_column(
+		ForeignKey("rule_packs.id", ondelete="RESTRICT"), index=True
+	)
+	cohort_size: Mapped[int] = mapped_column(Integer)
+	created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+	findings_count: Mapped[int] = mapped_column(Integer, default=0)
+	status: Mapped[str] = mapped_column(String(32), default="SUCCESS")
+	execution_summary: Mapped[dict[str, object] | None] = mapped_column(
+		JSON_TYPE, nullable=True
+	)
+
+	rule_pack: Mapped[RulePackRow] = relationship(back_populates="audit_trails")
+
+
+@event.listens_for(AuditTrailRow, "before_delete")
+def prevent_audit_trail_delete(*_: object) -> None:
+	"""Preserve audit records as immutable append-only facts."""
+	raise ValueError("audit_trail records are append-only and cannot be deleted")
 
 
 class AuditRunRow(Base):
@@ -132,6 +266,19 @@ class FindingRow(Base):
 	status: Mapped[str] = mapped_column(String(32), index=True)
 	summary: Mapped[str] = mapped_column(Text)
 	audit_outcome: Mapped[str] = mapped_column(String(64), index=True)
+	finding_uuid: Mapped[str | None] = mapped_column(String(36), unique=True, nullable=True, index=True)
+	rule_version: Mapped[str | None] = mapped_column(String(64), nullable=True)
+	batch_run_id: Mapped[str | None] = mapped_column(
+		ForeignKey("execution_plans.batch_run_id"), nullable=True, index=True
+	)
+	patient_id: Mapped[str | None] = mapped_column(String(128), nullable=True, index=True)
+	resources_evaluated: Mapped[list[str] | None] = mapped_column(JSON_TYPE, nullable=True)
+	resource_count: Mapped[int] = mapped_column(Integer, default=0)
+	evidence_completeness_pct: Mapped[float] = mapped_column(default=0.0)
+	rule_logic_summary: Mapped[str | None] = mapped_column(Text, nullable=True)
+	finding_narrative: Mapped[str | None] = mapped_column(Text, nullable=True)
+	reproducible: Mapped[bool] = mapped_column(Boolean, default=False)
+	reproducibility_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 	created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 	audit_run: Mapped[AuditRunRow] = relationship(back_populates="findings")
@@ -139,6 +286,7 @@ class FindingRow(Base):
 	assignments: Mapped[list["FindingAssignmentRow"]] = relationship(back_populates="finding", cascade="all, delete-orphan")
 	status_history: Mapped[list["FindingStatusHistoryRow"]] = relationship(back_populates="finding", cascade="all, delete-orphan")
 	ai_explanations: Mapped[list["AIExplanationRow"]] = relationship(back_populates="finding", cascade="all, delete-orphan")
+	hashes: Mapped["FindingHashRow | None"] = relationship(back_populates="finding", cascade="all, delete-orphan")
 
 
 class FindingEvidenceRow(Base):
@@ -148,10 +296,62 @@ class FindingEvidenceRow(Base):
 	finding_id: Mapped[int] = mapped_column(ForeignKey("findings.id"), index=True)
 	normalized_resource_id: Mapped[int | None] = mapped_column(ForeignKey("normalized_resources.id"), nullable=True, index=True)
 	evidence_type: Mapped[str] = mapped_column(String(64), index=True)
+	evidence_key: Mapped[str | None] = mapped_column(String(128), nullable=True, index=True)
 	evidence_payload: Mapped[dict] = mapped_column(JSON_TYPE)
 
 	finding: Mapped[FindingRow] = relationship(back_populates="evidence_items")
 	normalized_resource: Mapped[NormalizedResourceRow | None] = relationship(back_populates="finding_evidence")
+
+
+class FindingHashRow(Base):
+	__tablename__ = "finding_hashes"
+
+	id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+	finding_id: Mapped[int] = mapped_column(ForeignKey("findings.id", ondelete="CASCADE"), unique=True, index=True)
+	input_snapshot_hash: Mapped[str] = mapped_column(String(64))
+	output_finding_hash: Mapped[str] = mapped_column(String(64))
+	input_snapshot_json: Mapped[dict[str, object] | None] = mapped_column(JSON_TYPE, nullable=True)
+	created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+	finding: Mapped[FindingRow] = relationship(back_populates="hashes")
+
+
+class TimelineFindingRow(Base):
+	__tablename__ = "timeline_findings"
+
+	id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+	finding_id: Mapped[int] = mapped_column(ForeignKey("findings.id", ondelete="CASCADE"), index=True)
+	timeline_type: Mapped[str] = mapped_column(String(32), index=True)
+	temporal_context: Mapped[dict[str, object]] = mapped_column(JSON_TYPE)
+	created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class StaleStateRow(Base):
+	__tablename__ = "stale_states"
+
+	id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+	patient_id: Mapped[str | None] = mapped_column(String(128), nullable=True, index=True)
+	resource_type: Mapped[str] = mapped_column(String(64), index=True)
+	resource_id: Mapped[str] = mapped_column(String(128), index=True)
+	status: Mapped[str] = mapped_column(String(32), index=True)
+	last_updated: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+	age_years: Mapped[float] = mapped_column()
+	detected_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+	finding_id: Mapped[int | None] = mapped_column(ForeignKey("findings.id", ondelete="SET NULL"), nullable=True, index=True)
+
+
+class StateTransitionRow(Base):
+	__tablename__ = "state_transitions"
+
+	id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+	patient_id: Mapped[str | None] = mapped_column(String(128), nullable=True, index=True)
+	resource_type: Mapped[str] = mapped_column(String(64), index=True)
+	previous_status: Mapped[str | None] = mapped_column(String(32), nullable=True)
+	current_status: Mapped[str] = mapped_column(String(32), index=True)
+	transition_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
+	valid: Mapped[bool] = mapped_column(Boolean, default=True)
+	finding_id: Mapped[int | None] = mapped_column(ForeignKey("findings.id", ondelete="SET NULL"), nullable=True, index=True)
+	created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
 class ResolutionQueueRow(Base):

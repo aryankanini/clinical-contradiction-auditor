@@ -1,0 +1,17 @@
+@startuml UC-5-Audit-Reproducibility
+left to right direction
+actor "Compliance Officer" as Officer
+rectangle "Audit Reproducibility" {
+  usecase "Query Audit Trail" as UC5_1
+  usecase "Retrieve Artifact" as UC5_2
+  usecase "Reconstruct Pipeline" as UC5_3
+  usecase "Verify Outputs" as UC5_4
+  usecase "Generate Report" as UC5_5
+}
+Officer --> UC5_1
+Officer --> UC5_2
+UC5_2 --> UC5_3
+UC5_3 --> UC5_4
+UC5_4 --> UC5_5
+Officer --> UC5_5
+@enduml

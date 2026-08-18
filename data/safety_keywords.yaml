@@ -1,0 +1,102 @@
+---
+# Safety Keywords Configuration
+# Used by SafetyValidator to enforce audit boundaries
+# Findings containing these keywords are rejected (append-only audit compliance)
+
+version: "1.0.0"
+description: "Clinical audit safety boundary keywords"
+
+# Diagnosis keywords - cannot appear in findings
+diagnosis_keywords:
+  - "diagnose"
+  - "diagnosis"
+  - "diagnosed"
+  - "condition"  # Note: context-dependent, validated by validator
+  - "disease"
+  - "syndrome"
+  - "disorder"
+
+# Treatment keywords - cannot appear in findings
+treatment_keywords:
+  - "treat"
+  - "treatment"
+  - "therapy"
+  - "therapeutic"
+  - "prescribe"
+  - "prescription"
+  - "medication"  # Note: context-dependent
+  - "drug"
+  - "administered"
+  - "administration"
+
+# Recommendation keywords - cannot appear in findings
+recommendation_keywords:
+  - "recommend"
+  - "recommendation"
+  - "should"  # Note: context-dependent
+  - "must"    # Note: context-dependent
+  - "clinical action"
+  - "action item"
+  - "next step"
+  - "follow-up"
+  - "refer"
+  - "referral"
+
+# Clinical judgment keywords - cannot appear in findings
+clinical_judgment_keywords:
+  - "my opinion"
+  - "i believe"
+  - "assessment"
+  - "clinical judgment"
+  - "patient needs"
+  - "patient should"
+  - "in my experience"
+
+# Keywords to validate (case-insensitive search)
+# Combined list for full-text search in evidence/narrative
+all_keywords:
+  - "diagnose"
+  - "diagnosis"
+  - "diagnosed"
+  - "disease"
+  - "syndrome"
+  - "disorder"
+  - "treat"
+  - "treatment"
+  - "therapy"
+  - "therapeutic"
+  - "prescribe"
+  - "prescription"
+  - "administered"
+  - "administration"
+  - "drug"
+  - "recommend"
+  - "recommendation"
+  - "clinical action"
+  - "action item"
+  - "next step"
+  - "follow-up"
+  - "refer"
+  - "referral"
+  - "clinical judgment"
+  - "my opinion"
+  - "i believe"
+  - "patient needs"
+  - "patient should"
+  - "in my experience"
+
+# Whitelist: keywords that are safe in specific contexts
+# Format: keyword -> list of safe contexts
+whitelist:
+  "condition": 
+    - "database_field"
+    - "healthcare_model"
+  "medication":
+    - "allergy_list"
+    - "past_medical_history"
+  "should":
+    - "in_quotes"
+    - "reference_material"
+  "must":
+    - "in_quotes"
+    - "regulatory_reference"

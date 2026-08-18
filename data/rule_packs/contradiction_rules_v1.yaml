@@ -1,0 +1,26 @@
+metadata:
+  pack_id: PACK-CONTRADICTION-001
+  version: 1.0.0
+  description: Deterministic contradiction detection rules for normalized FHIR resources.
+  author: Clinical Engineering Team
+  organization: Healthcare System
+
+rules:
+  - {rule_id: RULE-COND-001, version: 1.0.0, name: Active Condition With Future Onset, description: Active condition onset is after audit reference date., category: diagnosis, enabled: true}
+  - {rule_id: RULE-COND-002, version: 1.0.0, name: Condition Onset And Abatement Ordering, description: Condition onset is after abatement., category: diagnosis, enabled: true}
+  - {rule_id: RULE-COND-003, version: 1.0.0, name: Active Condition With Abatement, description: Active condition includes abatement date., category: diagnosis, enabled: true}
+  - {rule_id: RULE-COND-004, version: 1.0.0, name: Entered In Error Condition With Duplicate, description: Entered in error condition has a duplicate., category: diagnosis, enabled: true}
+  - {rule_id: RULE-MED-001, version: 1.0.0, name: Active Medication Outside Effective Period, description: Active medication effective period has ended., category: medication, enabled: true}
+  - {rule_id: RULE-MED-002, version: 1.0.0, name: Medication Effective Date Ordering, description: Medication effective start follows end., category: medication, enabled: true}
+  - {rule_id: RULE-MED-003, version: 1.0.0, name: Stopped Medication With Active Reference, description: Stopped medication has active care references., category: medication, enabled: true}
+  - {rule_id: RULE-MED-004, version: 1.0.0, name: Invalid Medication Dose, description: Medication has a non-positive dose., category: medication, enabled: true}
+  - {rule_id: RULE-MED-005, version: 1.0.0, name: Duplicate Medication Entries, description: Medication entry duplicates code and status., category: medication, enabled: true}
+  - {rule_id: RULE-ENC-001, version: 1.0.0, name: Encounter Period Ordering, description: Encounter period starts after it ends., category: encounter, enabled: true}
+  - {rule_id: RULE-ENC-002, version: 1.0.0, name: Completed Encounter With Future End, description: Completed encounter ends after audit reference date., category: encounter, enabled: true}
+  - {rule_id: RULE-PROC-001, version: 1.0.0, name: Completed Procedure Without Date, description: Completed procedure has no performed date., category: procedure, enabled: true}
+  - {rule_id: RULE-PROC-002, version: 1.0.0, name: Procedure Period Ordering, description: Procedure period starts after it ends., category: procedure, enabled: true}
+  - {rule_id: RULE-OBS-001, version: 1.0.0, name: Final Observation With Future Date, description: Final observation effective date is after audit reference date., category: observation, enabled: true}
+  - {rule_id: RULE-OBS-002, version: 1.0.0, name: Observation Without Value, description: Non-cancelled observation has no value., category: observation, enabled: true}
+  - {rule_id: RULE-CARE-001, version: 1.0.0, name: Completed Care Plan With Future End, description: Completed care plan ends after audit reference date., category: careplan, enabled: true}
+  - {rule_id: RULE-CARE-002, version: 1.0.0, name: Care Plan Period Ordering, description: Care plan period starts after it ends., category: careplan, enabled: true}
+  - {rule_id: RULE-CARE-003, version: 1.0.0, name: Active Care Plan Without Activities, description: Active care plan has no activities., category: careplan, enabled: true}
