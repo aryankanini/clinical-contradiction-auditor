@@ -217,8 +217,9 @@ def seed_rule_pack(session) -> RulePackRow:
 		return existing
 
 	row = RulePackRow(
+		rule_pack_id="stub-pack-001",
 		version=STUB_RULE_PACK_VERSION,
-		status=RULE_PACK_PUBLISHED,
+		status="ACTIVE",
 		published_at=NOW,
 		metadata_json={
 			"source": "module_4_stub",
