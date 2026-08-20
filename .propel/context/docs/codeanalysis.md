@@ -2,204 +2,175 @@
 
 ## Executive Summary
 
-The repository currently captures product intent well but does not yet implement the product. The target architecture is clearly described in [.propel/context/docs/brd.md](.propel/context/docs/brd.md) and [.propel/context/docs/spec.md](.propel/context/docs/spec.md): batch FHIR ingestion, deterministic contradiction detection, AI-backed explanation, and an API/UI layer. In contrast, every tracked product file under `module_1_data`, `module_2_audit_engine`, `module_3_ai_reasoning`, `module_4_api_ui`, `shared`, `tests`, `docs`, `requirements.txt`, `docker-compose.yml`, and the frontend `package.json` is currently zero bytes.
+The repository has progressed from scaffolding to a runnable, database-backed audit workflow. It implements FHIR-style batch ingestion, normalized-resource persistence, a FastAPI service, an operator UI, AI explanation orchestration, resolution workflows, and compliance exports. The latest Module 2 changes add real deterministic rule classes and execution infrastructure, but the current full unit/API discovery run is failing because existing API rule-pack creation paths do not populate the newly required `rule_packs.rule_pack_id` field.
 
-This means the project is at a scaffold stage rather than an implementation stage. Architecture, security posture, performance behavior, data model, and integration topology can only be assessed as design intent plus delivery gaps. The only concrete runtime risk visible today is secret handling in the local environment configuration.
+The most important near-term task is therefore compatibility repair: align rule-pack seed/test/repository creation with the expanded Module 2 schema, restore green tests, then implement `ContradictionDetector` as the adapter that makes Module 2 authoritative through the existing API audit-engine port.
 
 ## Scope and Evidence
 
 This analysis is based on:
 
-- Intended product behavior in [.propel/context/docs/brd.md](.propel/context/docs/brd.md) and [.propel/context/docs/spec.md](.propel/context/docs/spec.md)
-- Tracked repository structure from `git ls-files`
-- File population checks across `module_1_data`, `module_2_audit_engine`, `module_3_ai_reasoning`, `module_4_api_ui`, `shared`, `tests`, `docs`, and `data`
-- Diagnostics scan across product directories
-- Environment and repository hygiene review of `.env`, `.env.example`, and `.gitignore`
+- Functional requirements and use cases in [.propel/context/docs/spec.md](.propel/context/docs/spec.md)
+- Product boundaries in [.propel/context/docs/brd.md](.propel/context/docs/brd.md)
+- Current checkout after the latest Module 2 rule changes
+- Full unit/API discovery that exposed `NOT NULL constraint failed: rule_packs.rule_pack_id` in API audit-run setup
+- Frontend production build completion
+- Source inspection of Modules 1 through 4, shared persistence, and runtime configuration
 
 ## Current State Snapshot
 
-| Area | Files | Non-empty files | Assessment |
-| --- | ---: | ---: | --- |
-| `module_1_data` | 4 | 0 | No ingestion implementation |
-| `module_2_audit_engine` | 7 | 0 | No rule engine or severity logic |
-| `module_3_ai_reasoning` | 8 | 0 | No orchestration, prompts, or provider integration |
-| `module_4_api_ui` | 2 | 0 | No backend API or frontend application |
-| `shared` | 3 | 0 | No shared models or enums |
-| `tests` | 4 | 0 | No unit or integration coverage |
-| `docs` | 4 | 0 | No product-facing technical docs outside Propel artifacts |
-| `data` | 4 | 0 | No sample, raw, or processed datasets |
-
-Additional observations:
-
-- `requirements.txt` is empty
-- `docker-compose.yml` is empty
-- `module_4_api_ui/frontend/package.json` is empty
-- No GitHub Actions workflows were found under `.github/workflows`
-- Product directories report no editor diagnostics because the code is not yet present
+| Area | Current State | Assessment |
+| --- | --- | --- |
+| Module 1 data | Batch intake, normalization, validation, replay/provenance artifacts, optional relational writes | Implemented |
+| Module 2 audit engine | Rule interface, execution orchestration, rule-pack schema, and timeline rules exist; `ContradictionDetector` remains empty | Partially implemented |
+| Module 3 AI reasoning | Bedrock provider, orchestrator, agents, prompts, failure handling | Implemented; external credentials required for live use |
+| Module 4 API | FastAPI routes, workflow services, repositories, health, compliance export | Implemented |
+| Module 4 UI | React/Vite operator application with findings, batch, dashboard, and detail views | Implemented and builds |
+| Shared database | SQLAlchemy model, session, and configuration layer | Implemented |
+| Tests | Unit and API coverage for ingestion, audit workflow, AI failure paths, compliance, and resolution | Regression currently blocks API audit-run test setup |
+| CI/CD | No GitHub Actions workflow found | Not implemented |
 
 ## Architecture Assessment
 
-### Intended architecture
+### Implemented Architecture
 
-The repository structure and specification define a sensible modular split:
+The application follows a practical layered structure:
 
-- `module_1_data`: FHIR batch ingestion and normalization
-- `module_2_audit_engine`: deterministic contradiction detection and severity assignment
-- `module_3_ai_reasoning`: explanation, evidence synthesis, and human-reviewed resolution drafts
-- `module_4_api_ui`: service interface and operator UI
-- `shared`: common domain models and enums
+- Module 1 turns batch payloads into normalized, validated resources and persisted artifact metadata.
+- Module 4 receives workflow requests, uses repositories for persistence, and delegates rule evaluation through `AuditEnginePort`.
+- Module 3 is isolated behind an orchestrator/provider boundary and returns explanations without changing finding status.
+- The React operator UI communicates with the versioned API under `/api/v1`.
+- Shared SQLAlchemy models provide persistence boundaries for batches, normalized resources, findings, evidence, workflow status, queues, and AI explanation records.
 
-This decomposition is appropriate for the stated safety model because it separates deterministic adjudication from AI-generated explanation.
+The composition root in [main.py](module_4_api_ui/backend/main.py) supports dependency injection for session factories, audit engines, and AI orchestrators. This enables isolated temp-file SQLite API tests without patching global state.
 
-### Actual architecture state
+### Architectural Strengths
 
-There is no executable architecture yet. The current repo demonstrates naming, boundaries, and artifact flow, but not control flow, interfaces, contracts, or deployment packaging. That creates three immediate consequences:
+- The audit-only boundary is explicit in service description, outcome handling, and AI explanation behavior.
+- The API has a defined engine seam through `AuditEnginePort`.
+- Database schema supports normalized data, governance signals, workflow state, evidence, audit runs, and AI explanation records.
+- The project uses JSON with a PostgreSQL JSONB variant, making SQLite usable for local tests while keeping PostgreSQL viable for deployment.
 
-- No way to verify that the deterministic engine is truly authoritative at runtime
-- No way to verify that AI is prevented from mutating findings or crossing the audit-only boundary
-- No way to validate module contracts, failure modes, or cross-layer observability
+### Architectural Gaps
 
-### Architectural risk
-
-The main architectural risk is not wrong structure; it is missing structure in code. If implementation begins without first codifying shared finding models, rule interfaces, and service boundaries, the deterministic-first safety principle in the spec will be easy to erode.
+- Module 4's `StubAuditEngine` still owns the rules used by the live API because Module 2 has no `ContradictionDetector` adapter implementing `AuditEnginePort`.
+- The expanded `RulePackRow` schema requires `rule_pack_id`, but existing API tests and seed paths create rule packs with only `version`. This breaks SQLite API setup before audit-run behavior is exercised.
+- `create_all` is used to create tables at runtime. Alembic migrations are declared as a dependency but not yet configured as the schema lifecycle mechanism.
+- The old source-of-truth artifacts still present an ingestion-only implementation view and do not capture the API, UI, AI, and workflow delivery now on main.
 
 ## Security Assessment
 
-### Positive design signals
+### Current Controls
 
-- The BRD and spec consistently enforce an audit-only boundary and explicitly prohibit diagnosis, treatment advice, or clinical intent alteration.
-- The planned deterministic-first design is a strong safety control if implemented faithfully.
+- API request validation uses FastAPI/Pydantic schemas.
+- Authorization checks use named roles for steward, analyst, and compliance workflows.
+- The AI service can be disabled with `AI_ENABLED=false` so audit workflows remain usable without external AI credentials.
+- The application records explicit safety metadata and distinguishes non-actionable findings from confirmed outcomes.
 
-### Current security gaps
+### Gaps and Risks
 
-- A real-looking API key is present in the local `.env` file. `.gitignore` includes `.env`, which is correct, but secret presence in the workspace still creates exposure risk if the file was ever copied, shared, or committed outside ignore protection.
-- There is no application code implementing authentication, authorization, request validation, structured logging, audit access controls, or secrets loading.
-- There are no pinned Python or frontend dependencies yet, so no supply-chain posture exists.
-- There is no container, infrastructure, or CI policy enforcement in the product runtime paths.
-
-### Security conclusion
-
-The current codebase is safer by omission than by control. The product cannot yet be attacked through its app surfaces because those surfaces do not exist, but it also has none of the security controls required for a healthcare-adjacent audit system.
+1. Identity is currently asserted through `X-User-Id` and `X-User-Role` request headers. This is appropriate for local testing but not trusted authentication for a deployed system.
+2. The local `.env` file contains an API key and must remain ignored. Rotate it if it was exposed outside the local environment.
+3. The application uses synchronous SQLAlchemy and file artifacts; production storage access, encryption, retention, backup, and authorization policy are not yet specified.
+4. Live Bedrock use depends on AWS credentials and runtime permissions, which are not validated by local tests.
 
 ## Performance Assessment
 
-### What can be measured now
+### Current Behavior
 
-There is no runtime to benchmark. No ingestion pipeline, rule execution path, API path, or AI call path exists.
+- Ingestion and repository operations are synchronous and are executed through FastAPI's worker-thread handling for synchronous routes.
+- Module 2's execution plan and rule orchestration are designed for canonical ordering and reproducibility; the API still executes the Module 4 placeholder engine.
+- The default batch ceiling is configurable through `API_MAX_BATCH_RECORDS`, with a default of `5000`.
 
-### Performance risks implied by the design
+### Risks
 
-- Cross-resource contradiction detection can become quadratic if patient resources are repeatedly scanned without indexed joins or normalized lookup maps.
-- Batch-oriented FHIR ingestion can become memory-heavy if full cohorts are loaded before normalization and rule execution.
-- AI rationale generation can dominate latency and cost if invoked synchronously for every finding instead of only for triaged findings or batched evidence packets.
-- Missing sample data and benchmarks mean there is no path yet to validate the pilot goals in the spec.
-
-### Performance conclusion
-
-Performance risk is currently architectural, not operational. The project should establish benchmark datasets, rule-engine complexity targets, and AI invocation budgets before large-scale implementation begins.
+- Batch normalization, rule evaluation, and artifact generation are in-process and do not yet have queue-based execution or horizontal worker scaling.
+- File-backed replay/provenance artifacts are appropriate for local workflows but need object storage and retention controls for production scale.
+- There are no performance benchmarks for the pilot thresholds, large FHIR cohorts, or concurrent audit runs.
 
 ## Data Model Assessment
 
-### Intended model
+The data model is materially implemented and aligns well with the required workflow:
 
-The spec names the core resource types: Conditions, Medications, Procedures, Encounters, Observations, and CarePlans. It also requires normalized status, timestamps, reference linkage, rule IDs, evidence references, timestamps, audit outcomes, severity, and AI confidence context.
+- `ingest_batches`, `ingest_records`, and `normalized_resources` preserve batch and normalized FHIR context.
+- `validation_states` and `governed_relationship_signals` preserve incompleteness and rule-governed relationship gaps.
+- `rule_packs`, `audit_runs`, `findings`, and `finding_evidence` support deterministic rule traceability.
+- `resolution_queues`, `finding_assignments`, and `finding_status_history` support governed workflow routing and closure.
+- `ai_explanations` persists supplemental AI output separately from deterministic findings.
 
-### Actual model state
-
-- No domain models exist under `shared/models`
-- No enums exist under `shared/enums`
-- No FHIR parsing or normalization logic exists under `module_1_data/ingestion`
-- No contradiction finding schema exists for deterministic and AI outputs
-- No rule catalog exists in the tracked `module_2_audit_engine/rules` files
-
-### Data-model conclusion
-
-The codebase has a strong conceptual model but no canonical schema. This is the most important technical gap to close before implementing the audit engine because every downstream layer depends on stable resource and finding contracts.
+Remaining data-model work is operational rather than conceptual: introduce migration management, define artifact retention policies, and validate PostgreSQL indexes using representative pilot data.
 
 ## Integration Topology Assessment
 
-### Intended integrations
+### Implemented Integrations
 
-The documented topology implies these external dependencies:
+- FHIR-like batch input through the ingestion/API batch workflow
+- PostgreSQL-compatible SQLAlchemy persistence with SQLite test compatibility
+- React/Vite frontend calling FastAPI endpoints
+- Optional AWS Bedrock provider for explanation generation
+- File-backed provenance, replay, and compliance export artifacts
 
-- FHIR or EHR source systems for resource bundles
-- A rule management source for versioned deterministic rules
-- An LLM provider for explanation and resolution drafting
-- A backend API consumed by triage and compliance users
+### Pending Integrations
 
-### Actual integrations
-
-No integration code exists for:
-
-- FHIR ingestion
-- Rule-pack loading or versioning
-- LLM provider configuration or invocation
-- API routing, serialization, or UI transport
-
-### Integration conclusion
-
-Integration topology is fully conceptual today. The most important near-term decision is to define stable boundaries between ingestion, deterministic findings, explanation generation, and operator workflows before any vendor-specific integration is added.
+- Real EHR/FHIR source authentication and transport
+- Production PostgreSQL deployment and migration lifecycle
+- Real identity provider for API users
+- AWS credential, observability, and cost governance for Bedrock
+- Object storage for durable artifacts
 
 ## Testing and Delivery Assessment
 
-- No unit tests, integration tests, or sample cases are implemented
-- No build or test commands are defined in package or dependency manifests
-- No CI workflows are present under `.github/workflows`
-- No deployable application packaging exists for backend or frontend
-- No data fixtures exist to prove contradiction detection, severity scoring, or safety-bound behavior
+- The previous main-branch baseline passed 167 unit/API tests and the frontend build completed successfully.
+- The latest full discovery run fails during API audit-run setup because `rule_packs.rule_pack_id` is non-nullable and not populated by older construction paths.
+- API tests use a temp-file SQLite database and dependency injection, providing strong local workflow confidence once the compatibility regression is repaired.
+- Error behavior for AI throttling/failure is covered by test output.
 
-This is a delivery-readiness gap, not just a quality gap. There is nothing yet that can be executed in CI, deployed to an environment, or validated against the pilot metrics in the spec.
+Delivery gaps:
+
+- No CI workflow is present to run backend tests, frontend build/typecheck, or schema validation on pull requests.
+- No persistent PostgreSQL integration test is present.
+- No browser-level end-to-end test suite is present for the operator UI.
 
 ## Key Findings
 
-### Critical
-
-1. The product codebase is structurally present but functionally unimplemented. All tracked files in the core application, tests, product docs, and runtime manifests are empty.
-
 ### High
 
-1. The repository has no canonical shared data model for FHIR normalization or contradiction findings, which blocks safe implementation of every downstream module.
-2. There is no test harness, benchmark dataset, or CI workflow, so none of the safety, accuracy, or performance claims in the spec can be validated.
-3. A real secret is present in the local `.env` file. If it has ever been committed or shared outside the ignored local workspace, it should be rotated.
+1. The latest Module 2 schema change breaks API audit-run tests because `RulePackRow.rule_pack_id` is required but not supplied by existing test and seed creation paths. Make the new identity field backward-compatible or update all construction paths, then restore the full test suite.
+
+2. The app currently uses Module 4's `StubAuditEngine` as the deterministic rule owner because `module_2_audit_engine.ContradictionDetector` is empty. Implement the real Module 2 engine behind the existing port before treating findings as authoritative.
+
+3. Header-derived roles are not production authentication. Replace them with a trusted identity integration before exposing the API beyond local or controlled development environments.
 
 ### Medium
 
-1. The intended separation between deterministic adjudication and AI explanation exists only in documentation, not in enforceable interfaces.
-2. Dependency and deployment manifests are empty, so the supply-chain and runtime posture is undefined.
-3. Product-facing technical docs under `docs/` are empty, leaving implementation guidance trapped in Propel artifacts only.
+1. Replace runtime `create_all` with Alembic migrations before persistent PostgreSQL deployment.
 
-## Prioritized Recommendations
+2. Add CI gates for Python tests, frontend typecheck/build, secret scanning, and migration verification.
 
-### Phase 0: Hygiene and safety baseline
+3. Refresh epics, user stories, task artifacts, and the implementation analysis to represent the merged Module 3 and Module 4 scope.
 
-1. Rotate the live secret from `.env` if there is any chance it left the local machine or entered git history.
-2. Replace `.env` usage with a documented local-only secret loading pattern and keep `.env.example` as placeholders only.
-3. Add minimal dependency manifests for backend and frontend so the runtime surface is explicit.
+4. Add production artifact retention, access controls, encryption, and backup policy for replay/provenance/compliance outputs.
 
-### Phase 1: Define canonical contracts
+### Low
 
-1. Implement shared domain models for normalized FHIR resources, contradiction findings, evidence packets, severity, and workflow state.
-2. Define the deterministic rule engine interface before writing individual rules.
-3. Define a hard contract that AI receives immutable deterministic findings and can only append explanation-oriented fields.
+1. Add performance baselines for batch volume, audit-run latency, and concurrent workloads.
 
-### Phase 2: Build the deterministic backbone first
+2. Add browser-level UI journeys after the API workflow is stable against a real database.
 
-1. Implement FHIR ingestion and normalization for the six in-scope resource types.
-2. Implement a small rule pack that proves the deterministic-first architecture end to end.
-3. Add reproducible audit-log artifacts as part of the first working pipeline, not as a later enhancement.
+## Prioritized Next Approach
 
-### Phase 3: Add AI and operator surfaces second
+1. Repair the `RulePackRow.rule_pack_id` compatibility regression in seed, repository, and test construction paths; rerun full discovery until green.
 
-1. Implement the AI provider behind a narrow interface that cannot alter contradiction status.
-2. Generate rationale only from deterministic findings and evidence payloads.
-3. Expose findings through a minimal backend API before building a broader frontend experience.
+2. Implement `module_2_audit_engine.ContradictionDetector` so it fulfills the existing `AuditEnginePort`, then run API tests with `AUDIT_ENGINE=module_2`.
 
-### Phase 4: Prove quality gates
+3. Add Alembic configuration and an initial migration from the current SQLAlchemy metadata.
 
-1. Add unit tests for normalization, rule evaluation, severity assignment, and boundary enforcement.
-2. Add integration tests with labeled sample cases for contradiction truth sets.
-3. Add CI checks for tests, linting, secret scanning, and dependency validation.
+4. Establish CI for backend tests, frontend build/typecheck, and migration smoke checks.
+
+5. Add a production identity solution and remove trust in caller-provided role headers.
+
+6. Refresh the project planning artifacts to make Module 2 ownership and production hardening visible in the delivery backlog.
 
 ## Overall Assessment
 
-The project has strong problem framing and a reasonable intended architecture, but it is still a design artifact repository rather than an application codebase. The next successful move is not broad implementation across all modules; it is establishing canonical models, deterministic interfaces, and a thin executable vertical slice that proves the audit-only architecture in code.
+The application is now a demoable audit workflow rather than a scaffold. Its central architectural seam is healthy: ingestion, persistence, API/UI, and AI explanation are already decoupled from the rule engine. The current priority is to stabilize the evolving Module 2 schema and complete the authoritative engine adapter before resuming production hardening.
