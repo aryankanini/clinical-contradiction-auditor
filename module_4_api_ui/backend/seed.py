@@ -222,7 +222,10 @@ DEMO_BATCHES = [contradiction_batch, stale_and_timeline_batch, relationship_gap_
 
 
 def seed_rule_pack(session) -> RulePackRow:
-	row = session.query(RulePackRow).filter_by(rule_pack_id=MODULE2_RULE_PACK_ID).one_or_none()
+	row = session.query(RulePackRow).filter_by(
+		rule_pack_id=MODULE2_RULE_PACK_ID,
+		version=MODULE2_RULE_PACK_VERSION,
+	).one_or_none()
 	if row is None:
 		# Upgrade previously seeded placeholder pack in place so existing DBs stop
 		# surfacing stale "module 2 pending" labels.
