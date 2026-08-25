@@ -12,7 +12,7 @@ AUDIT_ONLY_NOTICE = (
 )
 
 AI_AUDIT_ONLY_DISCLAIMER = (
-	"AI-generated explanation. This output is non-diagnostic and non-prescriptive; "
+	"AI-generated explanation. This output is Non-diagnostic and non-prescriptive; "
 	"it requires human review before any action is taken. "
 	"The contradiction was established by deterministic rule evaluation; AI text provides explanation and confidence context."
 )

@@ -123,6 +123,7 @@ class ExplanationTestCase(ApiTestCase):
 			if session.query(RulePackRow).count() == 0:
 				session.add(
 					RulePackRow(
+						rule_pack_id="stub-pack-001",
 						version=STUB_RULE_PACK_VERSION,
 						status=RULE_PACK_PUBLISHED,
 						published_at=datetime.now(timezone.utc),
