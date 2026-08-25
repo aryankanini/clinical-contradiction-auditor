@@ -89,3 +89,4 @@ data/processed/*.sqlite*
 
 # Propel telemetry (contains personal identity and session data)
 .propel/telemetry/
+.propel/telemetry/
