@@ -20,7 +20,7 @@ class NormalizationLogicTests(unittest.TestCase):
 		resource = result.normalized_resources[0]
 
 		self.assertEqual(resource.status.value, "finished")
-		self.assertEqual(resource.timestamps["start"].value, "2026-08-12T10:00:00Z")
+		self.assertEqual(resource.timestamps["period.start"].value, "2026-08-12T10:00:00Z")
 		self.assertEqual(resource.references["subject"].state, NormalizationState.UNRESOLVED)
 
 	def test_normalization_logic_marks_ambiguous_timestamps(self) -> None:

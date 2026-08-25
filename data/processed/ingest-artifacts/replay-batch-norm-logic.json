@@ -9,7 +9,7 @@
       "status": "finished",
       "status_state": "valid",
       "timestamps": {
-        "start": "2026-08-12T10:00:00Z"
+        "period.start": "2026-08-12T10:00:00Z"
       },
       "references": {
         "subject": "Patient/pat-1",

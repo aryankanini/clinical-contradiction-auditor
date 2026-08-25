@@ -27,8 +27,8 @@ class NormalizedModelTests(unittest.TestCase):
 
 		self.assertEqual(resource.provenance["source_record_id"], "enc-1")
 		self.assertEqual(resource.status.state, NormalizationState.VALID)
-		self.assertIn("start", resource.timestamps)
-		self.assertEqual(resource.timestamps["start"].state, NormalizationState.VALID)
+		self.assertIn("period.start", resource.timestamps)
+		self.assertEqual(resource.timestamps["period.start"].state, NormalizationState.VALID)
 
 	def test_normalized_models_mark_missing_values_explicitly(self) -> None:
 		payload = {
