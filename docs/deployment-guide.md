@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-Use Python 3.10 or later, PostgreSQL 14 or later, and the dependencies in `requirements.txt`.
+Use Python 3.12 or later, PostgreSQL 14 or later, and the dependencies in `requirements.txt`.
 
 ## Setup
 
@@ -10,7 +10,7 @@ Set `DATABASE_URL` to a PostgreSQL connection string. Apply the ordered SQL file
 
 ## Verification
 
-Run `python -m pytest tests/unit tests/integration -q`. Verify that `audit_trail` rejects update and delete attempts, then run a reproducibility audit after an execution batch.
+Run `python -m unittest discover -s tests -t .`. Verify that `audit_trail` rejects update and delete attempts, then run a reproducibility audit after an execution batch.
 
 ## Operations
 

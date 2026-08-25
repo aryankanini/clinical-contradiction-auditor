@@ -48,12 +48,11 @@ from shared.database.session import (
 logger = logging.getLogger("clinical_auditor.api")
 
 API_PREFIX = "/api/v1"
-API_TITLE = "Clinical Data Integrity Auditor API"
+API_TITLE = "AI-Powered Clinical Data Integrity Auditor API"
 API_VERSION = "0.1.0"
 API_DESCRIPTION = (
-	"Audit-only service interface for the AI-Powered Clinical Data Integrity Auditor. "
-	"Deterministic rules establish contradictions; AI supplies explanation and confidence "
-	"context only and never changes a finding's status."
+	"Service interface for the AI-Powered Clinical Data Integrity Auditor. "
+	"Audits cross-resource FHIR data inconsistencies using deterministic rules and AI-assisted explanation."
 )
 
 

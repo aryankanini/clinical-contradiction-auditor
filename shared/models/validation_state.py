@@ -11,7 +11,7 @@ class MissingRelationshipSignal:
 	resource_type: str
 	relationship_field: str
 	reason: str
-	audit_only_note: str = "Audit-only governed relationship gap"
+	audit_only_note: str = "Relationship gap found by rule validation"
 
 
 @dataclass(frozen=True)

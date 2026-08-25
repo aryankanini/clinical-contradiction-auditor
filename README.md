@@ -1,12 +1,6 @@
 # AI-Powered Clinical Data Integrity Auditor
 
-An **audit-only** system that detects cross-resource inconsistencies in FHIR patient
-records — contradictions, stale states, timeline violations, and rule-expected
-relationship gaps — before they become operational or risk-management failures.
-
-Deterministic rules establish every finding. AI contributes explanation, evidence
-synthesis, and confidence context *after* detection, and never changes a finding's status.
-The system does not diagnose, prescribe, or alter clinical intent.
+A system that audits FHIR patient records for cross-resource inconsistencies — contradictions, stale states, timeline violations, and rule-expected relationship gaps. Deterministic rules identify every finding, and AI provides explanation, evidence synthesis, and confidence context. It is an audit-only capability: it does not diagnose, recommend treatment, alter clinical intent, or autonomously change source records.
 
 Source of truth: [`.propel/context/docs/brd.md`](.propel/context/docs/brd.md) and
 [`.propel/context/docs/spec.md`](.propel/context/docs/spec.md).

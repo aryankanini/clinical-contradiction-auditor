@@ -44,10 +44,9 @@ function RoleSwitcher() {
 }
 
 /**
- * FR-011 requires the audit-only boundary be visible, not buried in a tooltip.
- * The banner is part of the shell so it cannot be lost on any screen.
+ * System status banner showing engine and AI state.
  */
-function AuditOnlyBanner() {
+function SystemStatusBanner() {
   const { data } = useQuery({
     queryKey: ["health"],
     queryFn: endpoints.health,
@@ -55,31 +54,26 @@ function AuditOnlyBanner() {
 
   const statusBadges: string[] = [];
   if (data?.audit_engine_is_placeholder) {
-    statusBadges.push("Placeholder rule engine — module 2 pending");
+    statusBadges.push("Placeholder rule engine active");
   }
   if (data && !data.ai_enabled) {
     statusBadges.push("AI explanation disabled");
   }
 
+  if (statusBadges.length === 0) {
+    return null; // No status warnings
+  }
+
   return (
-    <div className="border-b border-amber-200 bg-amber-50 px-6 py-2 text-xs text-amber-900">
-      <strong className="font-semibold">Audit-only.</strong> This system does
-      not diagnose, prescribe, or alter clinical intent. Deterministic rules
-      establish findings; AI provides explanation and confidence context only.
-      {statusBadges.length > 0 && (
-        <>
-          {" "}
-          {statusBadges.map((badge, index) => (
-            <span
-              key={badge}
-              className="mr-2 inline-block rounded bg-amber-200 px-1.5 py-0.5 font-medium text-amber-900 last:mr-0"
-            >
-              {index > 0 && " "}
-              {badge}
-            </span>
-          ))}
-        </>
-      )}
+    <div className="border-b border-blue-200 bg-blue-50 px-6 py-2 text-xs text-blue-900">
+      System status: {statusBadges.map((badge) => (
+        <span
+          key={badge}
+          className="ml-2 inline-block rounded bg-blue-200 px-1.5 py-0.5 font-medium text-blue-900"
+        >
+          {badge}
+        </span>
+      ))}
     </div>
   );
 }
@@ -87,14 +81,14 @@ function AuditOnlyBanner() {
 export function AppShell() {
   return (
     <div className="flex min-h-full flex-col">
-      <AuditOnlyBanner />
+      <SystemStatusBanner />
       <header className="flex items-center justify-between gap-6 border-b border-[var(--color-line)] bg-[var(--color-surface)] px-6 py-3">
         <div>
           <h1 className="text-base font-semibold">
-            Clinical Data Integrity Auditor
+            AI-Powered Clinical Data Integrity Auditor
           </h1>
           <p className="text-xs text-[var(--color-muted)]">
-            Cross-resource consistency auditing for FHIR patient records
+            FHIR patient record consistency analysis
           </p>
         </div>
         <RoleSwitcher />

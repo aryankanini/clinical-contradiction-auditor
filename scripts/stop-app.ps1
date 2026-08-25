@@ -15,7 +15,10 @@ function Get-ListeningPidsOnPort {
     if (Get-Command Get-NetTCPConnection -ErrorAction SilentlyContinue) {
         $connections = Get-NetTCPConnection -State Listen -LocalPort $Port -ErrorAction SilentlyContinue
         foreach ($connection in $connections) {
-            if ($null -ne $connection.OwningProcess) {
+            if (
+                $null -ne $connection.OwningProcess -and
+                (Get-Process -Id $connection.OwningProcess -ErrorAction SilentlyContinue)
+            ) {
                 [int]$connection.OwningProcess
             }
         }
@@ -47,8 +50,7 @@ $matches = Get-CimInstance Win32_Process | Where-Object {
 }
 
 if (-not $matches) {
-    Write-Host 'No running app processes were found.'
-    return
+    Write-Host 'No matching app parent processes were found; checking listeners.'
 }
 
 foreach ($process in $matches) {
@@ -74,6 +76,36 @@ foreach ($listenerPid in ($portPids | Sort-Object -Unique)) {
     catch {
         # Process exited between netstat and kill.
     }
+}
+
+for ($attempt = 1; $attempt -le 40; $attempt++) {
+    $remainingListenerPids = @()
+    foreach ($port in @(8000, 8001, 18080, 5173)) {
+        $remainingListenerPids += Get-ListeningPidsOnPort -Port $port
+    }
+
+    $remainingListenerPids = $remainingListenerPids | Sort-Object -Unique
+    if (-not $remainingListenerPids) {
+        break
+    }
+
+    foreach ($listenerPid in $remainingListenerPids) {
+        if ($listenerPid -gt 0) {
+            Stop-Process -Id $listenerPid -Force -ErrorAction SilentlyContinue
+        }
+    }
+
+    Start-Sleep -Milliseconds 250
+}
+
+$stillListening = @()
+foreach ($port in @(8000, 8001, 18080, 5173)) {
+    $stillListening += Get-ListeningPidsOnPort -Port $port
+}
+
+if ($stillListening) {
+    $remainingPids = ($stillListening | Sort-Object -Unique) -join ', '
+    throw "Unable to stop listeners on application ports: $remainingPids."
 }
 
 Write-Host 'Stopped the app processes.'

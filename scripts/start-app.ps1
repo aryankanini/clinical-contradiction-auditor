@@ -19,8 +19,42 @@ function Assert-Command {
     }
 }
 
+function Assert-PortAvailable {
+    param([int]$Port)
+
+    $listener = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue |
+        Where-Object { Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue } |
+        Select-Object -First 1
+
+    if ($listener) {
+        throw "Port $Port is already in use by PID $($listener.OwningProcess). Stop the existing service or choose a different -BackendPort."
+    }
+}
+
+function Wait-ForBackend {
+    param([int]$Port)
+
+    $healthUri = "http://127.0.0.1:$Port/api/v1/health"
+    for ($attempt = 1; $attempt -le 30; $attempt++) {
+        try {
+            $response = Invoke-WebRequest -Uri $healthUri -UseBasicParsing -TimeoutSec 1
+            if ($response.StatusCode -eq 200) {
+                return
+            }
+        }
+        catch {
+            # Uvicorn has not completed startup yet.
+        }
+
+        Start-Sleep -Seconds 1
+    }
+
+    throw "Backend did not become healthy at $healthUri."
+}
+
 Assert-Command python
 Assert-Command npm
+Assert-PortAvailable -Port $BackendPort
 
 if (-not (Test-Path $venvPython)) {
     Write-Host 'Creating Python virtual environment...'
@@ -49,6 +83,7 @@ Set-Location '$repoRoot'
 
 Write-Host 'Starting backend...'
 Start-Process powershell -ArgumentList '-NoExit', '-Command', $backendCommand -WorkingDirectory $repoRoot | Out-Null
+Wait-ForBackend -Port $BackendPort
 
 if (-not (Test-Path (Join-Path $frontendDir 'node_modules'))) {
     Write-Host 'Installing frontend dependencies...'

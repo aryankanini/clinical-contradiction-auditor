@@ -9,7 +9,7 @@ OpenAPI schema at `/docs` is generated from the same code.
 
 - **Base path:** `/api/v1`
 - **Content type:** `application/json` (except `POST /batches/upload`, `multipart/form-data`)
-- **Interactive docs:** `http://127.0.0.1:8000/docs`
+- **Interactive docs:** `http://127.0.0.1:18080/docs` by default; use the configured backend port when it differs.
 
 ## Audit-only boundary
 
@@ -188,7 +188,7 @@ can be reconstructed from it, satisfying the BRD's requirement to reproduce find
 
 ## Finding status state machine (FR-010)
 
-```
+```text
 new ──→ under_review ──→ accepted ──→ in_remediation ──→ remediated ──→ closed
  │           │                              ↑
  │           ├──→ deferred ──→ under_review / closed_no_action
@@ -225,9 +225,9 @@ finding.
 
 ## Audit engine seam
 
-> **`module_2_audit_engine` is not implemented yet.** Module 4 ships a placeholder,
-> `StubAuditEngine`, so the API and UI are demoable in the meantime. Its rules are **not**
-> authoritative clinical policy.
+`module_2_audit_engine.ContradictionDetector` is now the default deterministic engine.
+Module 4 still ships `StubAuditEngine` as a fallback/development seam, and its rules are
+**not** authoritative clinical policy.
 
 The contract module 2 must satisfy lives in
 [module_4_api_ui/backend/audit_engine/port.py](../module_4_api_ui/backend/audit_engine/port.py):
