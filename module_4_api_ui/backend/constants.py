@@ -102,7 +102,7 @@ ACTIVE_RUN_STATUSES: FrozenSet[str] = frozenset({RUN_QUEUED, RUN_RUNNING})
 
 # --- Rule packs -----------------------------------------------------------
 
-RULE_PACK_PUBLISHED = "published"
+RULE_PACK_PUBLISHED = "ACTIVE"
 RULE_PACK_DRAFT = "draft"
 RULE_PACK_RETIRED = "retired"
 
