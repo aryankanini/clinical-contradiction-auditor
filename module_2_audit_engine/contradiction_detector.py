@@ -275,6 +275,24 @@ class ContradictionDetector:
 			rule_parameters={"category": category or "unknown"},
 		)
 
+	def _apply_pack_parameters(self, rule_pack: Mapping[str, Any]) -> None:
+		stale_after_days_raw = rule_pack.get("stale_after_days")
+		if stale_after_days_raw is None:
+			return
+		try:
+			stale_after_days = int(stale_after_days_raw)
+		except (TypeError, ValueError):
+			return
+		if stale_after_days <= 0:
+			return
+		threshold_years = max(1, stale_after_days // 365)
+
+		class _PackConfiguredStaleRule(RuleStale001):
+			def __init__(self) -> None:
+				super().__init__(threshold_years=threshold_years)
+
+		self._factory._registry[RuleStale001().metadata.rule_id] = _PackConfiguredStaleRule
+
 	def evaluate_batch(
 		self,
 		resources: Sequence[Mapping[str, Any]],
@@ -284,6 +302,7 @@ class ContradictionDetector:
 		ordered_inputs = sorted(resources, key=lambda item: str(item.get("record_id") or ""))
 		normalized_resources = [_to_rule_resource(record, now) for record in ordered_inputs]
 
+		self._apply_pack_parameters(rule_pack)
 		pack = self._build_rule_pack(rule_pack)
 		orchestrator = RuleOrchestrator(factory=self._factory)
 		raw_findings = orchestrator.execute(rule_pack=pack, resources=normalized_resources)
