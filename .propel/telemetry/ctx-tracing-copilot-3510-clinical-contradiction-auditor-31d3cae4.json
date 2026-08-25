@@ -23,7 +23,7 @@
     "counting_method": "estimated"
   },
   "created_at": "2026-08-25T11:21:03",
-  "updated_at": "2026-08-25T11:21:03",
+  "updated_at": "2026-08-25T11:26:42",
   "_cumulative_input_tokens": 1535,
   "turns": [
     {
@@ -42,7 +42,15 @@
           ]
         }
       ],
-      "gen_ai.usage.input_tokens": 1535
+      "gen_ai.usage.input_tokens": 1535,
+      "end_time": "2026-08-25T11:26:42",
+      "duration_seconds": 339.0,
+      "duration_ms": 339000,
+      "gen_ai.server.time_to_complete": 339.0,
+      "gen_ai.output.messages": [],
+      "gen_ai.usage.output_tokens": 0,
+      "context_window.percentage_used": 1.2,
+      "context_window.remaining_tokens": 126465
     }
   ]
 }
