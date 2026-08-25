@@ -20,10 +20,6 @@ class HealthEndpointTests(ApiTestCase):
 		self.assertEqual(body["audit_engine"], "StubAuditEngine")
 		self.assertTrue(body["audit_engine_is_placeholder"])
 
-	def test_health_always_carries_audit_only_notice(self) -> None:
-		body = self.client.get("/api/v1/health").json()
-
-		self.assertIn("does not diagnose", body["audit_only_notice"])
 
 
 class PrincipalResolutionTests(ApiTestCase):

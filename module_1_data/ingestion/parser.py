@@ -69,7 +69,7 @@ def _extract_timestamps(resource: StagedResource) -> dict[str, NormalizedField]:
 	seen_values: dict[str, str] = {}
 	for path in TIMESTAMP_PATHS.get(resource.resource_type, ()): 
 		value = _read_path(resource.payload, path)
-		name = path.split(".")[-1]
+		name = path
 		if isinstance(value, str) and value:
 			state = NormalizationState.VALID
 			if seen_values and value not in seen_values.values():

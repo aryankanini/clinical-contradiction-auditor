@@ -17,15 +17,8 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from module_1_data.pipeline import ingest_batch
-from module_4_api_ui.backend.audit_engine.stub_engine import (
-	STUB_RULE_PACK_VERSION,
-	StubAuditEngine,
-)
-from module_4_api_ui.backend.constants import (
-	RULE_PACK_PUBLISHED,
-	RUN_COMPLETED,
-	RUN_RUNNING,
-)
+from module_2_audit_engine.contradiction_detector import ContradictionDetector
+from module_4_api_ui.backend.constants import RUN_COMPLETED, RUN_RUNNING
 from module_4_api_ui.backend.repositories import audit_run_repository, batch_repository
 from shared.database.base import Base
 from shared.database.config import DatabaseConfig
@@ -38,6 +31,8 @@ from shared.database.session import (
 
 
 NOW = datetime.now(timezone.utc)
+MODULE2_RULE_PACK_VERSION = "2.0.0"
+MODULE2_RULE_PACK_ID = "module2-pack-001"
 
 
 QUEUE_DEFINITIONS = [
@@ -77,12 +72,27 @@ QUEUE_DEFINITIONS = [
 
 
 RULE_DESCRIPTORS = [
-	{"rule_id": "CONTRA-CAREPLAN-MEDREQ-STATUS", "type": "contradiction", "requirement": "FR-003"},
-	{"rule_id": "CONTRA-CONDITION-ENCOUNTER-STATE", "type": "contradiction", "requirement": "FR-003"},
-	{"rule_id": "STALE-STATUS-OPEN", "type": "stale_state", "requirement": "FR-004"},
-	{"rule_id": "TIMELINE-EVENT-PRECEDES-ENCOUNTER", "type": "timeline_violation", "requirement": "FR-004"},
-	{"rule_id": "TIMELINE-FUTURE-EVENT", "type": "timeline_violation", "requirement": "FR-004"},
-	{"rule_id": "REL-{TYPE}-{FIELD}", "type": "missing_relationship", "requirement": "FR-005"},
+	{"rule_id": "RULE-COND-001", "type": "contradiction", "requirement": "FR-003"},
+	{"rule_id": "RULE-COND-002", "type": "contradiction", "requirement": "FR-003"},
+	{"rule_id": "RULE-COND-003", "type": "contradiction", "requirement": "FR-003"},
+	{"rule_id": "RULE-COND-004", "type": "contradiction", "requirement": "FR-003"},
+	{"rule_id": "RULE-ENC-001", "type": "timeline_violation", "requirement": "FR-004"},
+	{"rule_id": "RULE-ENC-002", "type": "timeline_violation", "requirement": "FR-004"},
+	{"rule_id": "RULE-PROC-001", "type": "contradiction", "requirement": "FR-003"},
+	{"rule_id": "RULE-PROC-002", "type": "timeline_violation", "requirement": "FR-004"},
+	{"rule_id": "RULE-OBS-001", "type": "timeline_violation", "requirement": "FR-004"},
+	{"rule_id": "RULE-OBS-002", "type": "contradiction", "requirement": "FR-003"},
+	{"rule_id": "RULE-CARE-001", "type": "timeline_violation", "requirement": "FR-004"},
+	{"rule_id": "RULE-CARE-002", "type": "timeline_violation", "requirement": "FR-004"},
+	{"rule_id": "RULE-CARE-003", "type": "contradiction", "requirement": "FR-003"},
+	{"rule_id": "RULE-MED-001", "type": "stale_state", "requirement": "FR-004"},
+	{"rule_id": "RULE-MED-002", "type": "timeline_violation", "requirement": "FR-004"},
+	{"rule_id": "RULE-MED-003", "type": "contradiction", "requirement": "FR-003"},
+	{"rule_id": "RULE-MED-004", "type": "contradiction", "requirement": "FR-003"},
+	{"rule_id": "RULE-MED-005", "type": "contradiction", "requirement": "FR-003"},
+	{"rule_id": "RULE-LIFECYCLE-001", "type": "timeline_violation", "requirement": "FR-004"},
+	{"rule_id": "RULE-TEMPORAL-001", "type": "timeline_violation", "requirement": "FR-004"},
+	{"rule_id": "RULE-STALE-001", "type": "stale_state", "requirement": "FR-004"},
 ]
 
 
@@ -212,26 +222,43 @@ DEMO_BATCHES = [contradiction_batch, stale_and_timeline_batch, relationship_gap_
 
 
 def seed_rule_pack(session) -> RulePackRow:
-	existing = session.query(RulePackRow).filter_by(version=STUB_RULE_PACK_VERSION).one_or_none()
-	if existing is not None:
-		return existing
+	row = session.query(RulePackRow).filter_by(
+		rule_pack_id=MODULE2_RULE_PACK_ID,
+		version=MODULE2_RULE_PACK_VERSION,
+	).one_or_none()
+	if row is None:
+		# Upgrade previously seeded placeholder pack in place so existing DBs stop
+		# surfacing stale "module 2 pending" labels.
+		row = session.query(RulePackRow).filter_by(rule_pack_id="stub-pack-001").one_or_none()
+
+	metadata = {
+		"source": "module_2_audit_engine",
+		"placeholder": False,
+		"owner": "module_2_audit_engine",
+		"note": (
+			"AI-Powered Clinical Data Integrity Auditor rule pack. Deterministic rules establish findings across FHIR resources."
+		),
+		"stale_after_days": 365,
+		"rules": RULE_DESCRIPTORS,
+	}
+
+	if row is not None:
+		row.rule_pack_id = MODULE2_RULE_PACK_ID
+		row.version = MODULE2_RULE_PACK_VERSION
+		if row.status not in {"ACTIVE", "ARCHIVED", "DEPRECATED"}:
+			row.status = "ACTIVE"
+		row.published_at = row.published_at or NOW
+		row.metadata_json = metadata
+		session.add(row)
+		session.flush()
+		return row
 
 	row = RulePackRow(
-		rule_pack_id="stub-pack-001",
-		version=STUB_RULE_PACK_VERSION,
+		rule_pack_id=MODULE2_RULE_PACK_ID,
+		version=MODULE2_RULE_PACK_VERSION,
 		status="ACTIVE",
 		published_at=NOW,
-		metadata_json={
-			"source": "module_4_stub",
-			"placeholder": True,
-			"owner": "module_2_audit_engine (pending)",
-			"note": (
-				"Placeholder rule pack shipped with the API so the UI is demoable before "
-				"the deterministic engine lands. Not authoritative clinical policy."
-			),
-			"stale_after_days": 365,
-			"rules": RULE_DESCRIPTORS,
-		},
+		metadata_json=metadata,
 	)
 	session.add(row)
 	session.flush()
@@ -314,9 +341,9 @@ def main(argv: List[str] | None = None) -> int:
 			queue_count = len(queues)
 
 		Path(args.artifact_dir).mkdir(parents=True, exist_ok=True)
-		audit_engine = StubAuditEngine()
+		audit_engine = ContradictionDetector(as_of=NOW)
 		summary: Dict[str, Any] = {
-			"rule_pack_version": STUB_RULE_PACK_VERSION,
+			"rule_pack_version": MODULE2_RULE_PACK_VERSION,
 			"queues": queue_count,
 			"batches": [],
 		}

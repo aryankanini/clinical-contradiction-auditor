@@ -72,7 +72,7 @@ export function RulePacksPage() {
             <span className="text-[var(--color-muted)]">{pack.rule_count} rule(s)</span>
             {pack.is_placeholder && (
               <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-900">
-                placeholder — module 2 pending
+                placeholder metadata
               </span>
             )}
           </div>

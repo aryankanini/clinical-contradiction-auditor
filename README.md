@@ -1,12 +1,6 @@
 # AI-Powered Clinical Data Integrity Auditor
 
-An **audit-only** system that detects cross-resource inconsistencies in FHIR patient
-records — contradictions, stale states, timeline violations, and rule-expected
-relationship gaps — before they become operational or risk-management failures.
-
-Deterministic rules establish every finding. AI contributes explanation, evidence
-synthesis, and confidence context *after* detection, and never changes a finding's status.
-The system does not diagnose, prescribe, or alter clinical intent.
+A system that audits FHIR patient records for cross-resource inconsistencies — contradictions, stale states, timeline violations, and rule-expected relationship gaps. Deterministic rules identify every finding, and AI provides explanation, evidence synthesis, and confidence context. It is an audit-only capability: it does not diagnose, recommend treatment, alter clinical intent, or autonomously change source records.
 
 Source of truth: [`.propel/context/docs/brd.md`](.propel/context/docs/brd.md) and
 [`.propel/context/docs/spec.md`](.propel/context/docs/spec.md).
@@ -16,7 +10,7 @@ Source of truth: [`.propel/context/docs/brd.md`](.propel/context/docs/brd.md) an
 | Module | Responsibility | Status |
 | --- | --- | --- |
 | `module_1_data` | FHIR batch ingestion, normalization, validation, replay artifacts | Implemented |
-| `module_2_audit_engine` | Deterministic contradiction detection and severity assignment | **Not implemented** — module 4 ships a placeholder |
+| `module_2_audit_engine` | Deterministic contradiction detection and severity assignment | Implemented |
 | `module_3_ai_reasoning` | Explanation, evidence synthesis, resolution drafts (AWS Bedrock) | Implemented |
 | `module_4_api_ui` | Service interface and operator UI | Implemented |
 | `shared` | Cross-module domain models, enums, database schema | Implemented |
@@ -47,26 +41,25 @@ development.
 ## Running
 
 ```powershell
-# 1. Seed demo rule packs, queues, batches, and findings
-.\.venv\Scripts\python.exe -m module_4_api_ui.backend.seed `
-    --database-url "sqlite+pysqlite:///./dev.db" --reset
+# Start backend + frontend together (AI enabled by default)
+.\scripts\start-app.ps1 -SkipSeed
 
-# 2. Start the API (terminal 1)
-$env:DATABASE_URL = "sqlite+pysqlite:///./dev.db"
-$env:AI_ENABLED = "false"          # omit if AWS Bedrock credentials are configured
-.\.venv\Scripts\python.exe -m uvicorn module_4_api_ui.backend.main:app --reload
+# Optional: first run with reseed
+.\scripts\start-app.ps1
 
-# 3. Start the UI (terminal 2)
-cd module_4_api_ui\frontend
-npm install
-npm run dev
+# Optional: run with AI disabled
+.\scripts\start-app.ps1 -SkipSeed -DisableAI
+
+# Stop both services
+.\scripts\stop-app.ps1
 ```
 
-- API: <http://127.0.0.1:8000> · interactive docs at `/docs`
+- API: <http://127.0.0.1:18080> · interactive docs at `/docs`
 - UI: <http://localhost:5173> (proxies `/api` to the backend, so CORS never applies in dev)
 
-`AI_ENABLED=false` lets the API run without AWS credentials. Findings, evidence, triage,
-and compliance export all remain fully usable; only AI rationale is unavailable.
+Default dev startup enables AI explanation generation (`AI_ENABLED=true`). Use
+`-DisableAI` when running without AWS credentials. Findings, evidence, triage, and
+compliance export remain usable either way.
 
 ### Ingesting a batch from the CLI
 
@@ -95,11 +88,9 @@ routes are declared `def` and FastAPI runs them in its worker threadpool. Only t
 endpoints are `async def`, because module 3's orchestrator is genuinely awaitable.
 Declaring the blocking routes `async` would stall the event loop.
 
-**The audit engine seam.** `module_2_audit_engine` is empty, so nothing would otherwise
-produce findings. Module 4 defines `AuditEnginePort` (a Protocol) and ships
-`StubAuditEngine` behind it. When the real engine lands it satisfies the same interface
-and drops in with no API, schema, or UI change — set `AUDIT_ENGINE=module_2` to require
-it. `/health` reports which engine is live. See
+**The audit engine seam.** Module 4 consumes the engine through `AuditEnginePort`
+(a Protocol). `module_2_audit_engine.ContradictionDetector` now satisfies this
+contract, and `/health` reports which engine is active. See
 [`docs/api-contract.md`](docs/api-contract.md) for the full contract.
 
 ## Documentation
