@@ -1,0 +1,46 @@
+{
+  "schema_url": "https://opentelemetry.io/schemas/1.36.0",
+  "resource": {
+    "service.name": "propeliq.ctx-tracker",
+    "gen_ai.framework": "copilot",
+    "user.name": "runner",
+    "user.full_name": "copilot-swe-agent[bot]",
+    "user.id": "runner",
+    "user.email": "198982749+Copilot@users.noreply.github.com",
+    "host.name": "runnervm76f27",
+    "os.type": "linux",
+    "os.version": "6.17.0-1022-azure",
+    "host.arch": "x86_64",
+    "terminal.type": "unknown"
+  },
+  "gen_ai.conversation.id": "copilot-3599-clinical-contradiction-auditor-31d3cae4",
+  "gen_ai.provider.name": "openai",
+  "gen_ai.operation.name": "chat",
+  "gen_ai.request.model": null,
+  "gen_ai.system_instructions": [],
+  "context_window": {
+    "limit_tokens": 128000,
+    "counting_method": "estimated"
+  },
+  "created_at": "2026-08-25T11:24:52",
+  "updated_at": "2026-08-25T11:24:52",
+  "_cumulative_input_tokens": 0,
+  "turns": [
+    {
+      "turn_id": 1,
+      "event.name": "gen_ai.client.inference.operation.details",
+      "start_time": "2026-08-25T11:24:52",
+      "gen_ai.operation.name": "chat",
+      "gen_ai.input.messages": [],
+      "gen_ai.usage.input_tokens": 0,
+      "end_time": "2026-08-25T11:24:52",
+      "duration_seconds": 0.0,
+      "duration_ms": 0,
+      "gen_ai.server.time_to_complete": 0.0,
+      "gen_ai.output.messages": [],
+      "gen_ai.usage.output_tokens": 0,
+      "context_window.percentage_used": 0.0,
+      "context_window.remaining_tokens": 128000
+    }
+  ]
+}
