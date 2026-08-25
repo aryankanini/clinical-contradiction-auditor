@@ -85,4 +85,4 @@ data/processed/*.sqlite*
 # Temporary files
 *.tmp
 *.temp
-.cache/
+.cache/.propel/telemetry/
