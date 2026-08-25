@@ -1,0 +1,47 @@
+{
+  "schema_url": "https://opentelemetry.io/schemas/1.36.0",
+  "resource": {
+    "service.name": "propeliq.ctx-tracker",
+    "gen_ai.framework": "copilot",
+    "user.name": "YuvarajSasikala",
+    "user.full_name": "Yuvaraj-Kanini",
+    "user.id": "YuvarajSasikala",
+    "user.email": "yuvaraj.sasikala@kanini.com",
+    "host.name": "KANINI-LTP-1043",
+    "os.type": "windows",
+    "os.version": "11",
+    "host.arch": "AMD64"
+  },
+  "gen_ai.conversation.id": "copilot-21988-clinical-contradiction-auditor-b13d545a",
+  "gen_ai.provider.name": "openai",
+  "gen_ai.operation.name": "chat",
+  "gen_ai.request.model": null,
+  "gen_ai.system_instructions": [],
+  "context_window": {
+    "limit_tokens": 128000,
+    "counting_method": "tiktoken"
+  },
+  "created_at": "2026-08-25T12:22:24",
+  "updated_at": "2026-08-25T12:22:24",
+  "_cumulative_input_tokens": 8338,
+  "turns": [
+    {
+      "turn_id": 1,
+      "event.name": "gen_ai.client.inference.operation.details",
+      "start_time": "2026-08-25T12:22:24",
+      "gen_ai.operation.name": "chat",
+      "gen_ai.input.messages": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "text",
+              "content": "[Terminal f5029990-2dbb-408e-b229-68855a34c302 notification: command completed with exit code 1. The terminal has been cleaned up.]\nTerminal output:\n(base) PS D:\\POC\\Hackathon\\clinical-contradiction-auditor> cd \"d:\\POC\\Hackathon\\clinical-contradiction-auditor\\module_4_api_ui\\frontend\"; npm run build\n\n> clinical-auditor-ui@0.1.0 build\n> tsc -b && vite build\n\nvite v6.4.3 building for production...\n\u00e2\u0153\u201c 98 modules transformed.\ndist/index.html                   0.43 kB \u00e2\u201d\u201a gzip:  0.29 kB\ndist/assets/index-BoF9tm5U.css   17.52 kB \u00e2\u201d\u201a gzip:  4.52 kB\ndist/assets/index-KqOy8D0u.js   315.48 kB \u00e2\u201d\u201a gzip: 96.01 kB\n\u00e2\u0153\u201c built in 1.15s\n(base) PS D:\\POC\\Hackathon\\clinical-contradiction-auditor\\module_4_api_ui\\frontend> python -m unittest tests.unit.test_module2_contradiction_detector -v\ntest_module2_contradiction_detector (unittest.loader._FailedTest.test_module2_contradiction_detector) ... ERROR\n\n======================================================================\nERROR: test_module2_contradiction_detector (unittest.loader._FailedTest.test_module2_contradiction_detector)\n----------------------------------------------------------------------\nImportError: Failed to import test module: test_module2_contradiction_detector\nTraceback (most recent call last):\n  File \"C:\\Users\\YuvarajSasikala\\Miniconda3\\Lib\\unittest\\loader.py\", line 137, in loadTestsFromName\n    module = __import__(module_name)\nModuleNotFoundError: No module named 'tests.unit.test_module2_contradiction_detector'\n\n\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nFAILED (errors=1)\n(base) PS D:\\POC\\Hackathon\\clinical-contradiction-auditor\\module_4_api_ui\\frontend> python -c \"import tempfile; from fastapi.testclient import TestClient; from module_4_api_ui.backend.main import create_app; from module_4_api_ui.backend.config import ApiConfig; from shared.database.config import DatabaseConfig; from shared.database.session import create_engine_from_config, create_all_tables, create_session_factory_for_engine; tmp=tempfile.TemporaryDirectory(); db='sqlite+pysqlite:///'+tmp.name.replace('\\\\','/')+'/health-check.db'; engine=create_engine_from_config(DatabaseConfig(url=db)); create_all_tables(engine); sf=create_session_factory_for_engine(engine); app=create_app(config=ApiConfig(database_url=db, artifact_dir=tmp.name, export_dir=tmp.name), session_factory=sf); c=TestClient(app); c.__enter__(); r=c.get('/api/v1/health'); print(r.status_code); print(r.json()); c.__exit__(None,None,None); engine.dispose(); tmp.cleanup()\"\nTraceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import tempfile; from fastapi.testclient import TestClient; from module_4_api_ui.backend.main import create_app; from module_4_api_ui.backend.config import ApiConfig; from shared.database.config import DatabaseConfig; from shared.database.session import create_engine_from_config, create_all_tables, create_session_factory_for_engine; tmp=tempfile.TemporaryDirectory(); db='sqlite+pysqlite:///'+tmp.name.replace('\\\\','/')+'/health-check.db'; engine=create_engine_from_config(DatabaseConfig(url=db)); create_all_tables(engine); sf=create_session_factory_for_engine(engine); app=create_app(config=ApiConfig(database_url=db, artifact_dir=tmp.name, export_dir=tmp.name), session_factory=sf); c=TestClient(app); c.__enter__(); r=c.get('/api/v1/health'); print(r.status_code); print(r.json()); c.__exit__(None,None,None); engine.dispose(); tmp.cleanup()\n                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nModuleNotFoundError: No module named 'module_4_api_ui'\n(base) PS D:\\POC\\Hackathon\\clinical-contradiction-auditor\\module_4_api_ui\\frontend> cd \"d:\\POC\\Hackathon\\clinical-contradiction-auditor\"; python -m unittest discover -s tests -t . -p \"test_module2_contradiction_detector.py\" -v\ntest_detector_emits_expected_condition_finding (tests.unit.test_module2_contradiction_detector.ContradictionDetectorTests.test_detector_emits_expected_condition_finding) ... 2026-08-25 12:18:57,690 INFO     module_2_audit_engine.deterministic.rule_interface RuleFactory initialized\n2026-08-25 12:18:57,691 INFO     module_2_audit_engine.deterministic.rule_interface Registered rule RULE-COND-001 (version 1.0.0, category diagnosis)\n2026-08-25 12:18:57,692 INFO     module_2_audit_engine.deterministic.rule_interface Registered rule RULE-COND-002 (version 1.0.0, category diagnosis)\n2026-08-25 12:18:57,693 INFO     module_2_audit_engine.deterministic.rule_interface Registered rule RULE-COND-003 (version 1.0.0, category diagnosis)\n2026-08-25 12:18:57,693 INFO     module_2_audit_engine.deterministic.rule_interface Registered rule RULE-COND-004 (version 1.0.0, category diagnosis)\n2026-08-25 12:18:57,694 INFO     module_2_audit_engine.deterministic.rule_interface Registered rule RULE-ENC-001 (version 1.0.0, category encounter)\n2026-08-25 12:18:57,694 INFO     module_2_audit_engine.deterministic.rule_interface Registered rule RULE-ENC-002 (version 1.0.0, category encounter)\n2026-08-25 12:18:57,695 INFO     module_2_audit_engine.deterministic.rule_interface Registered rule RULE-PROC-001 (version 1.0.0, category procedure)\n2026-08-25 12:18:57,695 INFO     module_2_audit_engine.deterministic.rule_interface Registered rule RULE-PROC-002 (version 1.0.0, category procedure)\n2026-08-25 12:18:57,696 INFO     module_2_audit_engine.deterministic.rule_interface Registered rule RULE-OBS-001 (version 1.0.0, category observation)\n2026-08-25 12:18:57,696 INFO     module_2_audit_engine.deterministic.rule_interface Registered rule RULE-OBS-002 (version 1.0.0, category observation)\n2026-08-25 12:18:57,697 INFO     module_2_audit_engine.deterministic.rule_interface Registered rule RULE-CARE-001 (version 1.0.0, category careplan)\n2026-08-25 12:18:57,697 INFO     module_2_audit_engine.deterministic.rule_interface Registered rule RULE-CARE-002 (version 1.0.0, category careplan)\n2026-08-25 12:18:57,697 INFO     module_2_audit_engine.deterministic.rule_interface Registered rule RULE-CARE-003 (version 1.0.0, category careplan)\n2026-08-25 12:18:57,698 INFO     module_2_audit_engine.deterministic.rule_interface Registered rule RULE-MED-001 (version 1.0.0, category medication)\n2026-08-25 12:18:57,699 INFO     module_2_audit_engine.deterministic.rule_interface Registered rule RULE-MED-002 (version 1.0.0, category medication)\n2026-08-25 12:18:57,700 INFO     module_2_audit_engine.deterministic.rule_interface Registered rule RULE-MED-003 (version 1.0.0, category medication)\n2026-08-25 12:18:57,700 INFO     module_2_audit_engine.deterministic.rule_interface Registered rule RULE-MED-004 (version 1.0.0, category medication)\n2026-08-25 12:18:57,700 INFO     module_2_audit_engine.deterministic.rule_interface Registered rule RULE-MED-005 (version 1.0.0, category medication)\n2026-08-25 12:18:57,702 INFO     module_2_audit_engine.deterministic.rule_interface Registered rule RULE-LIFECYCLE-001 (version 1.0.0, category timeline)\n2026-08-25 12:18:57,702 INFO     module_2_audit_engine.deterministic.rule_interface Registered rule RULE-TEMPORAL-001 (version 1.0.0, category timeline)\n2026-08-25 12:18:57,703 INFO     module_2_audit_engine.deterministic.rule_interface Registered rule RULE-STALE-001 (version 1.0.0, category timeline)\n2026-08-25 12:18:57,704 INFO     module_2_audit_engine.deterministic.orchestrator AuditLogger initialized\n2026-08-25 12:18:57,704 INFO     module_2_audit_engine.deterministic.orchestrator RuleOrchestrator initialized\n2026-08-25 12:18:57,704 INFO     module_2_audit_engine.deterministic.orchestrator Built execution plan: 21 rules from pack module2-default-pack, sorted by rule_id\n2026-08-25 12:18:57,704 INFO     module_2_audit_engine.deterministic.orchestrator Plan created: a8a57593-b63c-49be-aba9-97c74652ae03 with 21 rules\n2026-08-25 12:18:57,705 INFO     module_2_audit_engine.deterministic.orchestrator Batch completed (plan a8a57593-b63c-49be-aba9-97c74652ae03): 1 total findings, 1.01ms\n20..."
+            }
+          ]
+        }
+      ],
+      "gen_ai.usage.input_tokens": 8338
+    }
+  ]
+}

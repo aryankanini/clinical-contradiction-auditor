@@ -1,0 +1,47 @@
+{
+  "schema_url": "https://opentelemetry.io/schemas/1.36.0",
+  "resource": {
+    "service.name": "propeliq.ctx-tracker",
+    "gen_ai.framework": "copilot",
+    "user.name": "YuvarajSasikala",
+    "user.full_name": "Yuvaraj-Kanini",
+    "user.id": "YuvarajSasikala",
+    "user.email": "yuvaraj.sasikala@kanini.com",
+    "host.name": "KANINI-LTP-1043",
+    "os.type": "windows",
+    "os.version": "11",
+    "host.arch": "AMD64"
+  },
+  "gen_ai.conversation.id": "copilot-39856-clinical-contradiction-auditor-b13d545a",
+  "gen_ai.provider.name": "openai",
+  "gen_ai.operation.name": "chat",
+  "gen_ai.request.model": null,
+  "gen_ai.system_instructions": [],
+  "context_window": {
+    "limit_tokens": 128000,
+    "counting_method": "tiktoken"
+  },
+  "created_at": "2026-08-25T13:35:36",
+  "updated_at": "2026-08-25T13:35:36",
+  "_cumulative_input_tokens": 18,
+  "turns": [
+    {
+      "turn_id": 1,
+      "event.name": "gen_ai.client.inference.operation.details",
+      "start_time": "2026-08-25T13:35:36",
+      "gen_ai.operation.name": "chat",
+      "gen_ai.input.messages": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "type": "text",
+              "content": "Perform a deep analysis on how this application works and what is the key goal of this"
+            }
+          ]
+        }
+      ],
+      "gen_ai.usage.input_tokens": 18
+    }
+  ]
+}
