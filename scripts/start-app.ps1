@@ -1,7 +1,8 @@
 param(
     [switch]$SkipSeed,
     [switch]$DisableAI,
-    [int]$BackendPort = 18080
+    [int]$BackendPort = 18080,
+    [string]$DatabaseUrl = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -56,6 +57,15 @@ Assert-Command python
 Assert-Command npm
 Assert-PortAvailable -Port $BackendPort
 
+# Resolve the effective database URL: explicit parameter > existing env var > default dev.db
+if ($DatabaseUrl -ne '') {
+    $effectiveDatabaseUrl = $DatabaseUrl
+} elseif ($env:DATABASE_URL -ne '') {
+    $effectiveDatabaseUrl = $env:DATABASE_URL
+} else {
+    $effectiveDatabaseUrl = 'sqlite+pysqlite:///./dev.db'
+}
+
 if (-not (Test-Path $venvPython)) {
     Write-Host 'Creating Python virtual environment...'
     & python -m venv (Join-Path $repoRoot '.venv')
@@ -66,7 +76,7 @@ if (-not (Test-Path $venvPython)) {
 
 if (-not $SkipSeed) {
     Write-Host 'Seeding the local demo database...'
-    & $venvPython -m module_4_api_ui.backend.seed --database-url 'sqlite+pysqlite:///./dev.db' --reset
+    & $venvPython -m module_4_api_ui.backend.seed --database-url $effectiveDatabaseUrl --reset
     if ($LASTEXITCODE -ne 0) {
         throw 'Database seeding failed.'
     }
@@ -76,7 +86,7 @@ $aiEnabled = if ($DisableAI) { 'false' } else { 'true' }
 
 $backendCommand = @"
 Set-Location '$repoRoot'
-`$env:DATABASE_URL = 'sqlite+pysqlite:///./dev.db'
+`$env:DATABASE_URL = '$effectiveDatabaseUrl'
 `$env:AI_ENABLED = '$aiEnabled'
 & '$venvPython' -m uvicorn module_4_api_ui.backend.main:app --reload --host 127.0.0.1 --port $BackendPort
 "@
