@@ -2,9 +2,9 @@
 
 ## Executive Summary
 
-The repository has progressed from scaffolding to a runnable, database-backed audit workflow. It implements FHIR-style batch ingestion, normalized-resource persistence, a FastAPI service, an operator UI, AI explanation orchestration, resolution workflows, and compliance exports. The latest Module 2 changes add real deterministic rule classes and execution infrastructure, but the current full unit/API discovery run is failing because existing API rule-pack creation paths do not populate the newly required `rule_packs.rule_pack_id` field.
+The repository has progressed from scaffolding to a runnable, database-backed audit workflow. It implements FHIR-style batch ingestion, normalized-resource persistence, a FastAPI service, an operator UI, AI explanation orchestration, resolution workflows, and compliance exports. `ContradictionDetector` is now implemented as the authoritative audit engine adapter, replacing the `StubAuditEngine` placeholder. The deterministic rule pipeline, pack-governed selection, stale-threshold configuration, governed-relationship signal translation, and source-readiness outcome assignment are all live.
 
-The most important near-term task is therefore compatibility repair: align rule-pack seed/test/repository creation with the expanded Module 2 schema, restore green tests, then implement `ContradictionDetector` as the adapter that makes Module 2 authoritative through the existing API audit-engine port.
+A pre-existing compatibility issue remains: API tests and seed paths still create `RulePackRow` instances without the required `rule_pack_id` field, which blocks those API test suites. This regression predates the current changes and needs a dedicated fix before the full API test suite can be declared green.
 
 ## Scope and Evidence
 
@@ -22,12 +22,12 @@ This analysis is based on:
 | Area | Current State | Assessment |
 | --- | --- | --- |
 | Module 1 data | Batch intake, normalization, validation, replay/provenance artifacts, optional relational writes | Implemented |
-| Module 2 audit engine | Rule interface, execution orchestration, rule-pack schema, and timeline rules exist; `ContradictionDetector` remains empty | Partially implemented |
+| Module 2 audit engine | Rule interface, execution orchestration, rule-pack schema, timeline rules, and `ContradictionDetector` adapter all implemented | Implemented |
 | Module 3 AI reasoning | Bedrock provider, orchestrator, agents, prompts, failure handling | Implemented; external credentials required for live use |
 | Module 4 API | FastAPI routes, workflow services, repositories, health, compliance export | Implemented |
 | Module 4 UI | React/Vite operator application with findings, batch, dashboard, and detail views | Implemented and builds |
 | Shared database | SQLAlchemy model, session, and configuration layer | Implemented |
-| Tests | Unit and API coverage for ingestion, audit workflow, AI failure paths, compliance, and resolution | Regression currently blocks API audit-run test setup |
+| Tests | Unit and API coverage for ingestion, audit workflow, AI failure paths, compliance, and resolution | Regression in API audit-run test setup blocks those suites (pre-existing `rule_pack_id` gap) |
 | CI/CD | No GitHub Actions workflow found | Not implemented |
 
 ## Architecture Assessment
@@ -53,7 +53,6 @@ The composition root in [main.py](module_4_api_ui/backend/main.py) supports depe
 
 ### Architectural Gaps
 
-- Module 4's `StubAuditEngine` still owns the rules used by the live API because Module 2 has no `ContradictionDetector` adapter implementing `AuditEnginePort`.
 - The expanded `RulePackRow` schema requires `rule_pack_id`, but existing API tests and seed paths create rule packs with only `version`. This breaks SQLite API setup before audit-run behavior is exercised.
 - `create_all` is used to create tables at runtime. Alembic migrations are declared as a dependency but not yet configured as the schema lifecycle mechanism.
 - The old source-of-truth artifacts still present an ingestion-only implementation view and do not capture the API, UI, AI, and workflow delivery now on main.
@@ -135,11 +134,9 @@ Delivery gaps:
 
 ### High
 
-1. The latest Module 2 schema change breaks API audit-run tests because `RulePackRow.rule_pack_id` is required but not supplied by existing test and seed creation paths. Make the new identity field backward-compatible or update all construction paths, then restore the full test suite.
+1. API tests that create `RulePackRow` without `rule_pack_id` fail with a NOT NULL constraint error. Update all test and seed construction paths to supply `rule_pack_id`, then rerun the full test suite.
 
-2. The app currently uses Module 4's `StubAuditEngine` as the deterministic rule owner because `module_2_audit_engine.ContradictionDetector` is empty. Implement the real Module 2 engine behind the existing port before treating findings as authoritative.
-
-3. Header-derived roles are not production authentication. Replace them with a trusted identity integration before exposing the API beyond local or controlled development environments.
+2. Header-derived roles are not production authentication. Replace them with a trusted identity integration before exposing the API beyond local or controlled development environments.
 
 ### Medium
 
@@ -159,18 +156,16 @@ Delivery gaps:
 
 ## Prioritized Next Approach
 
-1. Repair the `RulePackRow.rule_pack_id` compatibility regression in seed, repository, and test construction paths; rerun full discovery until green.
+1. Fix the `RulePackRow.rule_pack_id` compatibility regression in seed, repository, and test construction paths; rerun full discovery until green.
 
-2. Implement `module_2_audit_engine.ContradictionDetector` so it fulfills the existing `AuditEnginePort`, then run API tests with `AUDIT_ENGINE=module_2`.
+2. Add Alembic configuration and an initial migration from the current SQLAlchemy metadata.
 
-3. Add Alembic configuration and an initial migration from the current SQLAlchemy metadata.
+3. Establish CI for backend tests, frontend build/typecheck, and migration smoke checks.
 
-4. Establish CI for backend tests, frontend build/typecheck, and migration smoke checks.
+4. Add a production identity solution and remove trust in caller-provided role headers.
 
-5. Add a production identity solution and remove trust in caller-provided role headers.
-
-6. Refresh the project planning artifacts to make Module 2 ownership and production hardening visible in the delivery backlog.
+5. Refresh the project planning artifacts to make production hardening visible in the delivery backlog.
 
 ## Overall Assessment
 
-The application is now a demoable audit workflow rather than a scaffold. Its central architectural seam is healthy: ingestion, persistence, API/UI, and AI explanation are already decoupled from the rule engine. The current priority is to stabilize the evolving Module 2 schema and complete the authoritative engine adapter before resuming production hardening.
+The application is a demoable, deterministic audit workflow with an authoritative rule engine. `ContradictionDetector` now fulfils the `AuditEnginePort` seam: it applies pack-governed rule selection, stale-threshold configuration, governed-relationship signal translation, and source-readiness outcome assignment. The current priority is to repair the `rule_pack_id` regression in API test setup and complete production hardening.

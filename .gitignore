@@ -86,3 +86,6 @@ data/processed/*.sqlite*
 *.tmp
 *.temp
 .cache/
+
+# Propel telemetry (contains personal identity and session data)
+.propel/telemetry/

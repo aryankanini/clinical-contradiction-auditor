@@ -44,7 +44,7 @@ function RoleSwitcher() {
 }
 
 /**
- * System status banner showing engine and AI state.
+ * System status banner showing audit-only boundary and engine/AI state.
  */
 function SystemStatusBanner() {
   const { data } = useQuery({
@@ -60,20 +60,21 @@ function SystemStatusBanner() {
     statusBadges.push("AI explanation disabled");
   }
 
-  if (statusBadges.length === 0) {
-    return null; // No status warnings
-  }
-
   return (
     <div className="border-b border-blue-200 bg-blue-50 px-6 py-2 text-xs text-blue-900">
-      System status: {statusBadges.map((badge) => (
-        <span
-          key={badge}
-          className="ml-2 inline-block rounded bg-blue-200 px-1.5 py-0.5 font-medium text-blue-900"
-        >
-          {badge}
-        </span>
-      ))}
+      Audit-only: this system audits data integrity and does not diagnose or prescribe.
+      {statusBadges.length > 0 && (
+        <>
+          {" "}System status:{statusBadges.map((badge) => (
+            <span
+              key={badge}
+              className="ml-2 inline-block rounded bg-blue-200 px-1.5 py-0.5 font-medium text-blue-900"
+            >
+              {badge}
+            </span>
+          ))}
+        </>
+      )}
     </div>
   );
 }

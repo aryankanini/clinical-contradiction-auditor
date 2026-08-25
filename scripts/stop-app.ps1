@@ -39,6 +39,7 @@ function Get-ListeningPidsOnPort {
 }
 
 $matches = Get-CimInstance Win32_Process | Where-Object {
+    $_.ProcessId -ne $PID -and
     $_.CommandLine -and
     $_.CommandLine -match 'powershell|python|node' -and
     (
@@ -64,12 +65,25 @@ foreach ($port in @(8000, 8001, 18080, 5173)) {
 }
 
 foreach ($listenerPid in ($portPids | Sort-Object -Unique)) {
-    if ($listenerPid -le 0) {
+    if ($listenerPid -le 0 -or $listenerPid -eq $PID) {
         continue
     }
 
     try {
         $process = Get-Process -Id $listenerPid -ErrorAction Stop
+        $listenerProcess = Get-CimInstance Win32_Process -Filter "ProcessId = $listenerPid" -ErrorAction SilentlyContinue
+        $cmdLine = if ($listenerProcess) { $listenerProcess.CommandLine } else { $null }
+        if (
+            -not $cmdLine -or
+            (
+                -not ($cmdLine -match $patterns[0]) -and
+                -not ($cmdLine -match $patterns[1]) -and
+                -not ($cmdLine -match $patterns[2]) -and
+                -not ($cmdLine -match $patterns[3])
+            )
+        ) {
+            continue
+        }
         Write-Host "Stopping port listener PID $listenerPid - $($process.ProcessName)"
         Stop-Process -Id $listenerPid -Force -ErrorAction SilentlyContinue
     }
@@ -90,7 +104,7 @@ for ($attempt = 1; $attempt -le 40; $attempt++) {
     }
 
     foreach ($listenerPid in $remainingListenerPids) {
-        if ($listenerPid -gt 0) {
+        if ($listenerPid -gt 0 -and $listenerPid -ne $PID) {
             Stop-Process -Id $listenerPid -Force -ErrorAction SilentlyContinue
         }
     }
