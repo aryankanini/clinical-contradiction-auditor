@@ -15,11 +15,9 @@ from module_2_audit_engine.rules.diagnosis_rules import (
 from module_2_audit_engine.rules.encounter_rules import (
 	RuleCarePlan001,
 	RuleCarePlan002,
-	RuleCarePlan003,
 	RuleEncounter001,
 	RuleEncounter002,
 	RuleObservation001,
-	RuleObservation002,
 	RuleProcedure001,
 	RuleProcedure002,
 )
@@ -168,10 +166,8 @@ class ContradictionDetector:
 		RuleProcedure001,
 		RuleProcedure002,
 		RuleObservation001,
-		RuleObservation002,
 		RuleCarePlan001,
 		RuleCarePlan002,
-		RuleCarePlan003,
 		RuleMedication001,
 		RuleMedication002,
 		RuleMedication003,
