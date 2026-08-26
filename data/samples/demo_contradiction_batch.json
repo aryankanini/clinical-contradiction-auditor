@@ -1,0 +1,39 @@
+{
+  "batch_id": "demo-contradiction-sample",
+  "source": "ehr-alpha",
+  "records": [
+    {
+      "resourceType": "Encounter",
+      "id": "enc-100",
+      "status": "finished",
+      "period": { "start": "2026-07-27T09:00:00Z" },
+      "subject": { "reference": "Patient/pat-1" }
+    },
+    {
+      "resourceType": "MedicationRequest",
+      "id": "med-100",
+      "status": "stopped",
+      "authoredOn": "2026-07-29T09:00:00Z",
+      "subject": { "reference": "Patient/pat-1" },
+      "encounter": { "reference": "Encounter/enc-100" }
+    },
+    {
+      "resourceType": "CarePlan",
+      "id": "cp-100",
+      "status": "active",
+      "period": { "start": "2026-08-01T09:00:00Z" },
+      "created": "2026-08-01T09:00:00Z",
+      "subject": { "reference": "Patient/pat-1" },
+      "encounter": { "reference": "Encounter/enc-100" },
+      "basedOn": [{ "reference": "MedicationRequest/med-100" }]
+    },
+    {
+      "resourceType": "Condition",
+      "id": "cond-100",
+      "clinicalStatus": { "coding": [{ "code": "active" }] },
+      "recordedDate": "2026-07-30T09:00:00Z",
+      "subject": { "reference": "Patient/pat-1" },
+      "encounter": { "reference": "Encounter/enc-999" }
+    }
+  ]
+}

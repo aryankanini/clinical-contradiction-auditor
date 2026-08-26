@@ -1,0 +1,37 @@
+{
+  "batch_id": "demo-stale-timeline-sample",
+  "source": "ehr-beta",
+  "records": [
+    {
+      "resourceType": "Encounter",
+      "id": "enc-200",
+      "status": "finished",
+      "period": { "start": "2026-05-18T09:00:00Z" },
+      "subject": { "reference": "Patient/pat-2" }
+    },
+    {
+      "resourceType": "Condition",
+      "id": "cond-200",
+      "clinicalStatus": { "coding": [{ "code": "active" }] },
+      "recordedDate": "2024-06-17T09:00:00Z",
+      "subject": { "reference": "Patient/pat-2" },
+      "encounter": { "reference": "Encounter/enc-200" }
+    },
+    {
+      "resourceType": "Observation",
+      "id": "obs-200",
+      "status": "final",
+      "effectiveDateTime": "2025-07-22T09:00:00Z",
+      "subject": { "reference": "Patient/pat-2" },
+      "encounter": { "reference": "Encounter/enc-200" }
+    },
+    {
+      "resourceType": "Observation",
+      "id": "obs-201",
+      "status": "final",
+      "effectiveDateTime": "2026-09-25T09:00:00Z",
+      "subject": { "reference": "Patient/pat-2" },
+      "encounter": { "reference": "Encounter/enc-200" }
+    }
+  ]
+}

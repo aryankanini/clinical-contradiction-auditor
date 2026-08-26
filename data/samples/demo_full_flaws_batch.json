@@ -1,0 +1,70 @@
+{
+  "batch_id": "demo-full-flaws",
+  "source": "ehr-combo",
+  "records": [
+    {
+      "resourceType": "Encounter",
+      "id": "enc-100",
+      "status": "finished",
+      "period": { "start": "2026-07-27T09:00:00Z" },
+      "subject": { "reference": "Patient/pat-1" }
+    },
+    {
+      "resourceType": "MedicationRequest",
+      "id": "med-100",
+      "status": "stopped",
+      "authoredOn": "2026-07-29T09:00:00Z",
+      "subject": { "reference": "Patient/pat-1" },
+      "encounter": { "reference": "Encounter/enc-100" }
+    },
+    {
+      "resourceType": "CarePlan",
+      "id": "cp-100",
+      "status": "active",
+      "period": { "start": "2026-08-01T09:00:00Z" },
+      "created": "2026-08-01T09:00:00Z",
+      "subject": { "reference": "Patient/pat-1" },
+      "encounter": { "reference": "Encounter/enc-100" },
+      "basedOn": [{ "reference": "MedicationRequest/med-100" }]
+    },
+    {
+      "resourceType": "Condition",
+      "id": "cond-100",
+      "clinicalStatus": { "coding": [{ "code": "active" }] },
+      "recordedDate": "2026-07-30T09:00:00Z",
+      "subject": { "reference": "Patient/pat-1" },
+      "encounter": { "reference": "Encounter/enc-999" }
+    },
+    {
+      "resourceType": "Encounter",
+      "id": "enc-200",
+      "status": "finished",
+      "period": { "start": "2026-05-18T09:00:00Z" },
+      "subject": { "reference": "Patient/pat-2" }
+    },
+    {
+      "resourceType": "Condition",
+      "id": "cond-200",
+      "clinicalStatus": { "coding": [{ "code": "active" }] },
+      "recordedDate": "2024-06-17T09:00:00Z",
+      "subject": { "reference": "Patient/pat-2" },
+      "encounter": { "reference": "Encounter/enc-200" }
+    },
+    {
+      "resourceType": "Observation",
+      "id": "obs-200",
+      "status": "final",
+      "effectiveDateTime": "2025-07-22T09:00:00Z",
+      "subject": { "reference": "Patient/pat-2" },
+      "encounter": { "reference": "Encounter/enc-200" }
+    },
+    {
+      "resourceType": "Observation",
+      "id": "obs-201",
+      "status": "final",
+      "effectiveDateTime": "2026-09-25T09:00:00Z",
+      "subject": { "reference": "Patient/pat-2" },
+      "encounter": { "reference": "Encounter/enc-200" }
+    }
+  ]
+}
