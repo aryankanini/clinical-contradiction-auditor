@@ -6,14 +6,6 @@ from typing import Any, Dict, List
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class BatchIngestRequest(BaseModel):
-	"""Mirrors the batch contract module 1 already validates."""
-
-	batch_id: str = Field(min_length=1, max_length=128)
-	source: str = Field(min_length=1, max_length=128)
-	records: List[Dict[str, Any]] = Field(min_length=1)
-
-
 class GovernedSignalOut(BaseModel):
 	model_config = ConfigDict(from_attributes=True)
 

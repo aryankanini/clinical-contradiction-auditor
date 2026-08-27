@@ -12,6 +12,26 @@ function isExplanation(v: unknown): v is AIExplanation {
   return Boolean(v && typeof v === 'object' && 'rationale_text' in v)
 }
 
+const TYPE_EXPLANATIONS: Record<string, string> = {
+  contradiction:
+    'Two or more records make conflicting claims about the same patient. At least one of them no longer reflects reality — for example, a medication marked stopped that a care plan still treats as active.',
+  stale_state:
+    'A record has stayed in an "active" state far longer than expected without being reviewed or closed out. The chart may no longer reflect the patient\'s true status.',
+  timeline_violation:
+    'The recorded events happen in an order that isn\'t physically possible — such as a date after the audit reference date, or an end that precedes its own start. This points to a data-entry or system error.',
+  missing_relationship:
+    'This record is missing a link the audit policy expects it to have. Without that link, the record can\'t be fully cross-checked against the rest of the chart.',
+}
+
+function whyThisMatters(data: FindingDetail): string {
+  const base = TYPE_EXPLANATIONS[data.finding_type] ?? 'A deterministic rule flagged a data-integrity issue on this record.'
+  const count = data.evidence?.length ?? 0
+  const recordNote = count > 0
+    ? ` Detected from ${count} evidence record${count === 1 ? '' : 's'} by rule ${data.rule_id}.`
+    : ` Detected by rule ${data.rule_id}.`
+  return base + recordNote
+}
+
 const DISPOSITIONS = [
   { key: 'accept', label: 'Accept', desc: 'Confirm this is a real issue' },
   { key: 'escalate', label: 'Escalate', desc: 'Send to a specialist' },
@@ -178,6 +198,14 @@ export function FindingDetailPage() {
         {/* Right column */}
         <div className="space-y-6">
 
+          {/* Deterministic explanation — always available, no AI required */}
+          <Card title="Why This Matters">
+            <p className="text-sm text-black leading-relaxed">{whyThisMatters(data)}</p>
+            <p className="mt-3 text-xs text-gray-400">
+              This explanation comes from the deterministic rule that detected the issue — it does not depend on AI.
+            </p>
+          </Card>
+
           {/* AI Explanation */}
           <Card title="AI Explanation">
             {stored ? (
@@ -209,6 +237,17 @@ export function FindingDetailPage() {
                 </p>
                 <Button onClick={() => generate.mutate()} disabled={generate.isPending} variant="ghost">
                   {generate.isPending ? 'Regenerating…' : '↺ Regenerate explanation'}
+                </Button>
+              </div>
+            ) : explanation.data && !isExplanation(explanation.data) && explanation.data.state === 'failed' ? (
+              <div className="space-y-3">
+                <p className="text-sm font-semibold text-red-700">AI explanation unavailable</p>
+                <p className="text-xs text-gray-500">{explanation.data.error ?? 'The AI provider could not be reached.'}</p>
+                <p className="text-xs text-gray-400">
+                  The deterministic finding above and its evidence remain fully valid — only the AI-generated narrative is missing.
+                </p>
+                <Button onClick={() => generate.mutate()} disabled={generate.isPending} variant="ghost">
+                  {generate.isPending ? 'Retrying…' : '↺ Retry'}
                 </Button>
               </div>
             ) : explanation.data && !isExplanation(explanation.data) ? (

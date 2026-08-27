@@ -5,9 +5,8 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session, sessionmaker
 
 from module_4_api_ui.backend.config import ApiConfig
-from module_4_api_ui.backend.dependencies import get_config, get_principal, get_session_factory
-from module_4_api_ui.backend.schemas.common import HealthOut, PrincipalOut
-from module_4_api_ui.backend.security import Principal
+from module_4_api_ui.backend.dependencies import get_config, get_session_factory
+from module_4_api_ui.backend.schemas.common import HealthOut
 
 
 router = APIRouter(tags=["health"])
@@ -39,8 +38,3 @@ def read_health(
 		audit_engine_is_placeholder=bool(getattr(engine, "is_placeholder", False)),
 		ai_enabled=config.ai_enabled,
 	)
-
-
-@router.get("/session/me", response_model=PrincipalOut)
-def read_current_principal(principal: Principal = Depends(get_principal)) -> PrincipalOut:
-	return PrincipalOut(user_id=principal.user_id, role=principal.role)

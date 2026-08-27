@@ -8,9 +8,7 @@ Bedrock round-trips. Generation runs in the background so a slow provider never 
 the findings queue.
 """
 
-from typing import List
-
-from fastapi import APIRouter, BackgroundTasks, Depends, Query, Response, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Response, status
 from sqlalchemy.orm import Session, sessionmaker
 from starlette.concurrency import run_in_threadpool
 
@@ -26,11 +24,7 @@ from module_4_api_ui.backend.dependencies import (
 )
 from module_4_api_ui.backend.errors import NotFoundError
 from module_4_api_ui.backend.repositories import finding_repository
-from module_4_api_ui.backend.schemas.explanations import (
-	AIExplanationOut,
-	ExplanationJobOut,
-	ExplanationRequest,
-)
+from module_4_api_ui.backend.schemas.explanations import ExplanationJobOut, ExplanationRequest
 from module_4_api_ui.backend.security import Principal
 from module_4_api_ui.backend.services.explanation_service import JOB_KIND, ExplanationService
 from module_4_api_ui.backend.services.finding_service import explanation_out
@@ -114,14 +108,3 @@ async def read_explanation(
 
 	response.status_code = status.HTTP_204_NO_CONTENT
 	return None
-
-
-@router.get("/{finding_id}/explanations", response_model=List[AIExplanationOut])
-async def list_explanations(
-	finding_id: int,
-	session: Session = Depends(get_session),
-	principal: Principal = Depends(get_principal),
-) -> List[AIExplanationOut]:
-	"""Every generated version, which FR-012 reproducibility review needs."""
-	rows = await run_in_threadpool(finding_repository.list_explanations, session, finding_id)
-	return [explanation_out(row) for row in rows if row is not None]

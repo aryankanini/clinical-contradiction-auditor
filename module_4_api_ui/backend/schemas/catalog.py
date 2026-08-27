@@ -46,14 +46,3 @@ class AuditRunOut(BaseModel):
 	completed_at: datetime | None = None
 
 
-class AuditRunDetailOut(AuditRunOut):
-	finding_count: int = 0
-	severity_counts: Dict[str, int] = Field(default_factory=dict)
-	priority_counts: Dict[str, int] = Field(default_factory=dict)
-	finding_type_counts: Dict[str, int] = Field(default_factory=dict)
-	outcome_counts: Dict[str, int] = Field(default_factory=dict)
-	# Failure detail is transient: ``audit_runs`` has no error column, so this comes
-	# from the in-process job registry and is lost on restart.
-	error_message: str | None = None
-	evaluated_record_count: int | None = None
-	skipped_record_count: int | None = None

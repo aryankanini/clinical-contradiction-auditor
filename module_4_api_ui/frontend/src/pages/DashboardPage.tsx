@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { endpoints } from '../api/endpoints'
 import {
   Card, EmptyState, ErrorState, Loading, StatTile,
-  Table, Tr, Td, StatusBadge, SeverityBadge, formatDate, humanise,
+  Table, Tr, Td, StatusBadge, formatDate,
 } from '../components/primitives'
 
 const TYPE_LABELS: Record<string, string> = {

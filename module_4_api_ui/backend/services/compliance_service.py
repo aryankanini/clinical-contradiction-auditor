@@ -14,7 +14,6 @@ from sqlalchemy.orm import Session
 
 from module_1_data.pipeline import reconstruct_ingest_output_from_path
 from module_4_api_ui.backend.config import ApiConfig
-from module_4_api_ui.backend.constants import EVIDENCE_COMPLIANCE_VERIFICATION
 from module_4_api_ui.backend.errors import NotFoundError
 from module_4_api_ui.backend.repositories import batch_repository, finding_repository
 from module_4_api_ui.backend.schemas.compliance import (
@@ -24,8 +23,6 @@ from module_4_api_ui.backend.schemas.compliance import (
 	ReproducibilityOut,
 	SampleOut,
 	SampleSelectRequest,
-	VerificationOut,
-	VerificationRequest,
 )
 from module_4_api_ui.backend.security import Principal
 from module_4_api_ui.backend.services.finding_service import FindingService
@@ -162,41 +159,6 @@ class ComplianceService:
 			checks=checks,
 			missing_artifacts=missing,
 			verified_at=datetime.now(timezone.utc),
-		)
-
-	def record_verification(
-		self,
-		session: Session,
-		finding_id: int,
-		request: VerificationRequest,
-		principal: Principal,
-	) -> VerificationOut:
-		if finding_repository.get_finding(session, finding_id) is None:
-			raise NotFoundError(f"Finding {finding_id} was not found.")
-
-		verified_at = datetime.now(timezone.utc)
-		row = finding_repository.add_evidence(
-			session,
-			finding_id,
-			EVIDENCE_COMPLIANCE_VERIFICATION,
-			{
-				"outcome": request.outcome,
-				"verified_by": principal.user_id,
-				"verified_at": verified_at.isoformat(),
-				"notes": request.notes,
-			},
-		)
-		session.flush()
-		session.commit()
-		session.refresh(row)
-
-		return VerificationOut(
-			finding_id=finding_id,
-			evidence_id=row.id,
-			outcome=request.outcome,
-			verified_by=principal.user_id,
-			verified_at=verified_at,
-			notes=request.notes,
 		)
 
 	def export(

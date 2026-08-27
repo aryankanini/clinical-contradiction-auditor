@@ -127,12 +127,19 @@ def _to_rule_resource(record: Mapping[str, Any], now: datetime) -> Dict[str, Any
 	timestamps_raw = record.get("timestamps")
 	timestamps: Mapping[str, Any] = timestamps_raw if isinstance(timestamps_raw, Mapping) else {}
 
-	resource: Dict[str, Any] = {
-		"resourceType": str(record.get("resource_type") or "Unknown"),
-		"id": str(record.get("record_id") or "unknown"),
-		"status": record.get("status"),
-		"meta": {"auditReferenceDate": now.isoformat()},
-	}
+	# Start from the untouched ingest payload so rules can read fields normalization
+	# doesn't extract (e.g. Condition.code) — normalized fields below always win over it.
+	raw_payload = record.get("raw_payload")
+	resource: Dict[str, Any] = dict(raw_payload) if isinstance(raw_payload, Mapping) else {}
+
+	resource.update(
+		{
+			"resourceType": str(record.get("resource_type") or "Unknown"),
+			"id": str(record.get("record_id") or "unknown"),
+			"status": record.get("status"),
+			"meta": {"auditReferenceDate": now.isoformat()},
+		}
+	)
 
 	_apply_timestamp_fields(resource, timestamps)
 

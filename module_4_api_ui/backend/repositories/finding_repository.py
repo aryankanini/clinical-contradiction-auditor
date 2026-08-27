@@ -268,12 +268,3 @@ def latest_explanation(session: Session, finding_id: int) -> AIExplanationRow | 
 		.limit(1)
 	)
 	return session.execute(statement).scalar_one_or_none()
-
-
-def list_explanations(session: Session, finding_id: int) -> List[AIExplanationRow]:
-	statement = (
-		select(AIExplanationRow)
-		.where(AIExplanationRow.finding_id == finding_id)
-		.order_by(AIExplanationRow.created_at.desc(), AIExplanationRow.id.desc())
-	)
-	return list(session.execute(statement).scalars().all())

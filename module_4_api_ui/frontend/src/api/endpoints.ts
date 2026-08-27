@@ -18,7 +18,6 @@ import type {
   ResolutionOut,
   RulePackOut,
   Sample,
-  StatusHistoryRow,
 } from './types'
 
 export const endpoints = {
@@ -37,7 +36,6 @@ export const endpoints = {
     api.post<AuditRun>('/audit-runs', { batch_id: batchId, rule_pack_version: null }),
   listAuditRuns: (page = 1) =>
     api.get<Page<AuditRun>>(`/audit-runs?page=${page}&page_size=25`),
-  getAuditRun: (id: number) => api.get<AuditRun>(`/audit-runs/${id}`),
 
   // Findings
   listFindings: (filters: {
@@ -66,7 +64,6 @@ export const endpoints = {
   },
   findingStats: () => api.get<FindingStats>('/findings/stats'),
   getFinding: (id: number) => api.get<FindingDetail>(`/findings/${id}`),
-  getFindingHistory: (id: number) => api.get<StatusHistoryRow[]>(`/findings/${id}/history`),
   triageFinding: (id: number, disposition: string, notes?: string) =>
     api.post<FindingDetail>(`/findings/${id}/triage`, { disposition, notes }),
   transitionFinding: (id: number, toStatus: string, notes?: string) =>
@@ -81,9 +78,6 @@ export const endpoints = {
     api.get<AIExplanation | ExplanationJob | null>(`/findings/${id}/explanation`),
 
   // Resolution
-  getResolutionDraft: (id: number) =>
-    api.get<Record<string, unknown> | null>(`/findings/${id}/resolution/draft`),
-  getResolution: (id: number) => api.get<ResolutionOut | null>(`/findings/${id}/resolution`),
   approveResolution: (
     id: number,
     payload: { suggested_action: string; rationale: string; source: string },

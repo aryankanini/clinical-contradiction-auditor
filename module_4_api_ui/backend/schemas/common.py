@@ -39,11 +39,6 @@ class ErrorResponse(BaseModel):
 	context: Dict[str, Any] = Field(default_factory=dict)
 
 
-class PrincipalOut(BaseModel):
-	user_id: str
-	role: str
-
-
 class HealthOut(BaseModel):
 	model_config = ConfigDict(from_attributes=True)
 

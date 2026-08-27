@@ -11,10 +11,8 @@ from module_4_api_ui.backend.dependencies import get_principal, get_session, req
 from module_4_api_ui.backend.schemas.common import Page
 from module_4_api_ui.backend.schemas.findings import (
 	FindingDetailOut,
-	FindingEvidenceOut,
 	FindingStatsOut,
 	FindingSummaryOut,
-	StatusHistoryOut,
 	StatusTransitionRequest,
 	TriageRequest,
 )
@@ -85,26 +83,6 @@ def read_finding(
 	principal: Principal = Depends(get_principal),
 ) -> FindingDetailOut:
 	return service.detail(session, finding_id, principal)
-
-
-@router.get("/{finding_id}/evidence", response_model=List[FindingEvidenceOut])
-def read_finding_evidence(
-	finding_id: int,
-	session: Session = Depends(get_session),
-	service: FindingService = Depends(_service),
-	principal: Principal = Depends(get_principal),
-) -> List[FindingEvidenceOut]:
-	return service.evidence(session, finding_id)
-
-
-@router.get("/{finding_id}/history", response_model=List[StatusHistoryOut])
-def read_finding_history(
-	finding_id: int,
-	session: Session = Depends(get_session),
-	service: FindingService = Depends(_service),
-	principal: Principal = Depends(get_principal),
-) -> List[StatusHistoryOut]:
-	return service.history(session, finding_id)
 
 
 @router.post("/{finding_id}/triage", response_model=FindingDetailOut)

@@ -32,10 +32,6 @@ def list_rule_packs(session: Session) -> List[RulePackRow]:
 	return list(session.execute(statement).scalars().all())
 
 
-def get_rule_pack(session: Session, rule_pack_id: int) -> RulePackRow | None:
-	return session.get(RulePackRow, rule_pack_id)
-
-
 def get_rule_pack_by_version(session: Session, version: str) -> RulePackRow | None:
 	statement = select(RulePackRow).where(RulePackRow.version == version)
 	return session.execute(statement).scalar_one_or_none()

@@ -147,19 +147,6 @@ class ResolutionService:
 			escalated=escalated,
 		)
 
-	def read(self, session: Session, finding_id: int) -> ResolutionOut | None:
-		self._require_finding(session, finding_id)
-		row = finding_repository.get_approved_resolution(session, finding_id)
-		return self._resolution_out(row) if row is not None else None
-
-	def draft(self, session: Session, finding_id: int) -> Dict[str, Any] | None:
-		"""The model's proposed action, if one has been generated."""
-		self._require_finding(session, finding_id)
-		explanation = finding_repository.latest_explanation(session, finding_id)
-		if explanation is None:
-			return None
-		return self._draft_from(explanation)
-
 	# --- helpers --------------------------------------------------------
 
 	@staticmethod

@@ -199,6 +199,7 @@ def load_audit_inputs(session: Session, batch_id: int) -> List[Dict[str, Any]]:
 				"status_state": row.status_state,
 				"timestamps": _flatten_timestamps(row.timestamps),
 				"references": dict(row.references or {}),
+				"raw_payload": dict(row.ingest_record.raw_payload or {}) if row.ingest_record else {},
 				"incomplete_fields": list(state.incomplete_fields or []) if state else [],
 				"unresolved_links": list(state.unresolved_links or []) if state else [],
 				"governed_signals": [signal.rule_id for signal in state.governed_signals]

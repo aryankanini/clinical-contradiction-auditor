@@ -227,19 +227,6 @@ class FindingService:
 			by_finding_type=finding_repository.count_by_column(session, FindingRow.finding_type),
 		)
 
-	def evidence(self, session: Session, finding_id: int) -> List[FindingEvidenceOut]:
-		self._require_finding(session, finding_id)
-		return [
-			self._evidence_out(item) for item in finding_repository.list_evidence(session, finding_id)
-		]
-
-	def history(self, session: Session, finding_id: int) -> List[StatusHistoryOut]:
-		self._require_finding(session, finding_id)
-		return [
-			StatusHistoryOut.model_validate(row)
-			for row in finding_repository.list_status_history(session, finding_id)
-		]
-
 	# --- helpers --------------------------------------------------------
 
 	@staticmethod

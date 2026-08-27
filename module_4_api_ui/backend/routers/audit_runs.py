@@ -13,11 +13,7 @@ from module_4_api_ui.backend.dependencies import (
 	get_session_factory,
 	require_roles,
 )
-from module_4_api_ui.backend.schemas.catalog import (
-	AuditRunCreateRequest,
-	AuditRunDetailOut,
-	AuditRunOut,
-)
+from module_4_api_ui.backend.schemas.catalog import AuditRunCreateRequest, AuditRunOut
 from module_4_api_ui.backend.schemas.common import Page
 from module_4_api_ui.backend.security import Principal
 from module_4_api_ui.backend.services.audit_run_service import AuditRunService
@@ -62,13 +58,3 @@ def list_audit_runs(
 		session, batch_id=batch_id, status=run_status, page=page, page_size=page_size
 	)
 	return Page.build(items, total, page, page_size)
-
-
-@router.get("/{run_id}", response_model=AuditRunDetailOut)
-def read_audit_run(
-	run_id: int,
-	session: Session = Depends(get_session),
-	service: AuditRunService = Depends(_service),
-	principal: Principal = Depends(get_principal),
-) -> AuditRunDetailOut:
-	return service.detail(session, run_id)

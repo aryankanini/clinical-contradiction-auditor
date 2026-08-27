@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Dict, List, Literal
+from typing import Any, Dict, List
 
 from pydantic import BaseModel, Field
 
@@ -40,20 +40,6 @@ class ReproducibilityOut(BaseModel):
 	checks: List[ReproducibilityCheckOut] = Field(default_factory=list)
 	missing_artifacts: List[str] = Field(default_factory=list)
 	verified_at: datetime
-
-
-class VerificationRequest(BaseModel):
-	outcome: Literal["passed", "failed"]
-	notes: str | None = None
-
-
-class VerificationOut(BaseModel):
-	finding_id: int
-	evidence_id: int
-	outcome: str
-	verified_by: str
-	verified_at: datetime
-	notes: str | None = None
 
 
 class ExportRequest(BaseModel):

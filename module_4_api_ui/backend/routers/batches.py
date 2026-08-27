@@ -23,7 +23,6 @@ from module_4_api_ui.backend.dependencies import (
 from module_4_api_ui.backend.errors import ValidationError
 from module_4_api_ui.backend.schemas.batches import (
 	BatchDetailOut,
-	BatchIngestRequest,
 	BatchIngestResponse,
 	BatchSummaryOut,
 	NormalizedResourceOut,
@@ -38,21 +37,6 @@ router = APIRouter(prefix="/batches", tags=["batches"])
 
 def _service(config: ApiConfig = Depends(get_config)) -> BatchService:
 	return BatchService(config)
-
-
-@router.post("", response_model=BatchIngestResponse, status_code=status.HTTP_201_CREATED)
-def ingest_batch_payload(
-	payload: BatchIngestRequest,
-	response: Response,
-	session: Session = Depends(get_session),
-	service: BatchService = Depends(_service),
-	principal: Principal = Depends(require_roles("steward", "analyst")),
-) -> BatchIngestResponse:
-	result = service.ingest(session, payload.model_dump())
-	if result.ingest_status == "partial-ingest":
-		# Some records were quarantined; the caller needs to see what did not land.
-		response.status_code = status.HTTP_207_MULTI_STATUS
-	return result
 
 
 @router.post("/upload", response_model=BatchIngestResponse, status_code=status.HTTP_201_CREATED)

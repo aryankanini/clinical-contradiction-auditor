@@ -12,7 +12,6 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from module_4_api_ui.backend.dependencies import get_principal, get_session
-from module_4_api_ui.backend.errors import NotFoundError
 from module_4_api_ui.backend.repositories import catalog_repository
 from module_4_api_ui.backend.schemas.catalog import QueueOut, RulePackOut
 from module_4_api_ui.backend.security import Principal
@@ -52,18 +51,6 @@ def list_rule_packs(
 	principal: Principal = Depends(get_principal),
 ) -> List[RulePackOut]:
 	return [_rule_pack_out(row) for row in catalog_repository.list_rule_packs(session)]
-
-
-@router.get("/rule-packs/{rule_pack_id}", response_model=RulePackOut)
-def read_rule_pack(
-	rule_pack_id: int,
-	session: Session = Depends(get_session),
-	principal: Principal = Depends(get_principal),
-) -> RulePackOut:
-	row = catalog_repository.get_rule_pack(session, rule_pack_id)
-	if row is None:
-		raise NotFoundError(f"Rule pack {rule_pack_id} was not found.")
-	return _rule_pack_out(row)
 
 
 @router.get("/queues", response_model=List[QueueOut])

@@ -18,11 +18,10 @@ from module_4_api_ui.backend.repositories import (
 	audit_run_repository,
 	batch_repository,
 	catalog_repository,
-	finding_repository,
 )
-from module_4_api_ui.backend.schemas.catalog import AuditRunDetailOut, AuditRunOut
+from module_4_api_ui.backend.schemas.catalog import AuditRunOut
 from module_4_api_ui.backend.services.job_registry import JobRegistry
-from shared.database.models import AuditRunRow, FindingRow
+from shared.database.models import AuditRunRow
 
 
 logger = logging.getLogger("clinical_auditor.api.audit_run")
@@ -164,29 +163,3 @@ class AuditRunService:
 			session, batch_id=batch_id, status=status, page=page, page_size=page_size
 		)
 		return [_run_out(row) for row in rows], total
-
-	def detail(self, session: Session, run_id: int) -> AuditRunDetailOut:
-		run = audit_run_repository.get_run(session, run_id)
-		if run is None:
-			raise NotFoundError(f"Audit run {run_id} was not found.")
-
-		base = _run_out(run)
-		error_message = None
-		if self._jobs is not None:
-			entry = self._jobs.peek(("audit_run", run_id))
-			if entry is not None:
-				error_message = entry.error
-
-		return AuditRunDetailOut(
-			**base.model_dump(),
-			finding_count=audit_run_repository.count_findings(session, run_id),
-			severity_counts=finding_repository.counts_for_run(session, run_id, FindingRow.severity),
-			priority_counts=finding_repository.counts_for_run(session, run_id, FindingRow.priority),
-			finding_type_counts=finding_repository.counts_for_run(
-				session, run_id, FindingRow.finding_type
-			),
-			outcome_counts=finding_repository.counts_for_run(
-				session, run_id, FindingRow.audit_outcome
-			),
-			error_message=error_message,
-		)
