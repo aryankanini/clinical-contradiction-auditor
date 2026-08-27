@@ -1,102 +1,85 @@
-import { NavLink, Outlet } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-
-import { endpoints } from "../api/endpoints";
-import type { Role } from "../api/types";
-import { useRole } from "../hooks/useRole";
+import { NavLink, Outlet } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
+import { endpoints } from '../api/endpoints'
+import { useRole } from '../hooks/useRole'
+import type { Role } from '../api/types'
 
 const NAV = [
-  { to: "/", label: "Dashboard", end: true },
-  { to: "/batches", label: "Batches" },
-  { to: "/findings", label: "Findings" },
-  { to: "/queues", label: "Queues" },
-  { to: "/rule-packs", label: "Rule packs" },
-  { to: "/compliance", label: "Compliance" },
-];
+  { to: '/', label: 'Dashboard', end: true, icon: '◈' },
+  { to: '/batches', label: 'Patient Records', end: false, icon: '⊞' },
+  { to: '/findings', label: 'Issues Found', end: false, icon: '⚑' },
+  { to: '/queues', label: 'Work Queues', end: false, icon: '☰' },
+  { to: '/rule-packs', label: 'Audit Rules', end: false, icon: '⊙' },
+  { to: '/compliance', label: 'Compliance', end: false, icon: '✓' },
+]
 
-const ROLES: Role[] = ["steward", "analyst", "compliance"];
+const ROLES: Role[] = ['steward', 'analyst', 'compliance']
 
 function RoleSwitcher() {
-  const { role, userId, setRole, setUserId } = useRole();
-
+  const { role, userId, setRole, setUserId } = useRole()
   return (
     <div className="flex items-center gap-2">
       <input
-        aria-label="User id"
+        aria-label="User ID"
         value={userId}
-        onChange={(event) => setUserId(event.target.value)}
-        className="w-40 rounded-md border border-[var(--color-line)] px-2 py-1 text-sm"
+        onChange={(e) => setUserId(e.target.value)}
+        className="w-32 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-sm font-medium text-black focus:outline-none focus:ring-2 focus:ring-black"
       />
       <select
         aria-label="Role"
         value={role}
-        onChange={(event) => setRole(event.target.value as Role)}
-        className="rounded-md border border-[var(--color-line)] bg-white px-2 py-1 text-sm capitalize"
+        onChange={(e) => setRole(e.target.value as Role)}
+        className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-sm font-bold text-black capitalize focus:outline-none focus:ring-2 focus:ring-black"
       >
-        {ROLES.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
+        {ROLES.map((r) => (
+          <option key={r} value={r}>{r}</option>
         ))}
       </select>
     </div>
-  );
+  )
 }
 
-/**
- * System status banner showing audit-only boundary and engine/AI state.
- */
-function SystemStatusBanner() {
-  const { data } = useQuery({
-    queryKey: ["health"],
-    queryFn: endpoints.health,
-  });
-
-  const statusBadges: string[] = [];
-  if (data?.audit_engine_is_placeholder) {
-    statusBadges.push("Placeholder rule engine active");
-  }
-  if (data && !data.ai_enabled) {
-    statusBadges.push("AI explanation disabled");
-  }
+function SystemBanner() {
+  const { data } = useQuery({ queryKey: ['health'], queryFn: endpoints.health, staleTime: 30_000 })
+  const warnings: string[] = []
+  if (data?.audit_engine_is_placeholder) warnings.push('Using placeholder audit engine')
+  if (data && !data.ai_enabled) warnings.push('AI explanations disabled')
+  if (data && !data.database_reachable) warnings.push('Database unreachable')
 
   return (
-    <div className="border-b border-blue-200 bg-blue-50 px-6 py-2 text-xs text-blue-900">
-      Audit-only: this system audits data integrity and does not diagnose or prescribe.
-      {statusBadges.length > 0 && (
-        <>
-          {" "}System status:{statusBadges.map((badge) => (
-            <span
-              key={badge}
-              className="ml-2 inline-block rounded bg-blue-200 px-1.5 py-0.5 font-medium text-blue-900"
-            >
-              {badge}
-            </span>
-          ))}
-        </>
-      )}
+    <div className="border-b border-blue-100 bg-blue-50 px-6 py-2 text-xs font-semibold text-blue-700">
+      <span className="font-bold text-blue-900">Read-only audit tool</span>
+      {' '}— findings here do not change patient records or clinical decisions.
+      {warnings.map((w) => (
+        <span key={w} className="ml-3 inline-block rounded-md bg-blue-200 px-2 py-0.5 text-blue-900">
+          {w}
+        </span>
+      ))}
     </div>
-  );
+  )
 }
 
 export function AppShell() {
   return (
-    <div className="flex min-h-full flex-col">
-      <SystemStatusBanner />
-      <header className="flex items-center justify-between gap-6 border-b border-[var(--color-line)] bg-[var(--color-surface)] px-6 py-3">
+    <div className="flex min-h-screen flex-col bg-gray-50">
+      <SystemBanner />
+      <header className="flex items-center justify-between gap-6 border-b border-gray-200 bg-white px-6 py-4 shadow-sm">
         <div>
-          <h1 className="text-base font-semibold">
-            AI-Powered Clinical Data Integrity Auditor
+          <h1 className="text-base font-black tracking-tight text-black">
+            Clinical Data Integrity Auditor
           </h1>
-          <p className="text-xs text-[var(--color-muted)]">
-            FHIR patient record consistency analysis
+          <p className="text-xs font-medium text-gray-400">
+            Automated patient record consistency checker
           </p>
         </div>
         <RoleSwitcher />
       </header>
 
       <div className="flex flex-1">
-        <nav className="w-48 shrink-0 border-r border-[var(--color-line)] bg-[var(--color-surface)] p-3">
+        <nav className="w-56 shrink-0 border-r border-gray-200 bg-white px-3 py-6">
+          <p className="mb-3 px-3 text-xs font-black uppercase tracking-widest text-gray-400">
+            Navigation
+          </p>
           <ul className="space-y-1">
             {NAV.map((item) => (
               <li key={item.to}>
@@ -104,13 +87,14 @@ export function AppShell() {
                   to={item.to}
                   end={item.end}
                   className={({ isActive }) =>
-                    `block rounded-md px-3 py-2 text-sm ${
+                    `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors ${
                       isActive
-                        ? "bg-slate-900 text-white"
-                        : "text-slate-700 hover:bg-slate-100"
+                        ? 'bg-black text-white'
+                        : 'text-gray-500 hover:bg-gray-100 hover:text-black'
                     }`
                   }
                 >
+                  <span className="text-base leading-none">{item.icon}</span>
                   {item.label}
                 </NavLink>
               </li>
@@ -118,10 +102,10 @@ export function AppShell() {
           </ul>
         </nav>
 
-        <main className="flex-1 p-6">
+        <main className="flex-1 overflow-auto p-8">
           <Outlet />
         </main>
       </div>
     </div>
-  );
+  )
 }

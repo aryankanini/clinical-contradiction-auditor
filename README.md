@@ -38,45 +38,6 @@ whole schema also runs on SQLite (`shared/database/models.py` declares
 `JSON().with_variant(JSONB, "postgresql")`), so no database server is required for
 development.
 
-## Running
-
-```powershell
-# Start backend + frontend together (AI enabled by default)
-.\scripts\start-app.ps1 -SkipSeed
-
-# Optional: first run with reseed
-.\scripts\start-app.ps1
-
-# Optional: run with AI disabled
-.\scripts\start-app.ps1 -SkipSeed -DisableAI
-
-# Stop both services
-.\scripts\stop-app.ps1
-```
-
-- API: <http://127.0.0.1:18080> · interactive docs at `/docs`
-- UI: <http://localhost:5173> (proxies `/api` to the backend, so CORS never applies in dev)
-
-Default dev startup enables AI explanation generation (`AI_ENABLED=true`). Use
-`-DisableAI` when running without AWS credentials. Findings, evidence, triage, and
-compliance export remain usable either way.
-
-### Ingesting a batch from the CLI
-
-```bash
-python -m module_1_data.cli data/samples/demo_batch.json --pretty
-```
-
-## Testing
-
-```bash
-python -m unittest discover -s tests -t .
-```
-
-Tests use the standard library's `unittest` against a temp-file SQLite database. No
-Postgres, no AWS credentials, and no mocking library are needed — module 3 takes its
-provider by constructor injection, so a fake is supplied directly.
-
 ## Architecture notes
 
 Requests flow `routers → services → repositories → SQLAlchemy`, matching the layer model

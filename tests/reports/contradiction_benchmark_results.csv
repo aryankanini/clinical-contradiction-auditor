@@ -1,2 +1,0 @@
-rule_set,cohort_size,iterations,findings,elapsed_ms,status
-all_18_rules,1000,1,7000,347.28,PASS

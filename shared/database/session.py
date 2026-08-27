@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
@@ -30,7 +28,3 @@ def create_session_factory(config: DatabaseConfig) -> sessionmaker[Session]:
 def create_all_tables(engine: Engine) -> None:
 	Base.metadata.create_all(bind=engine)
 
-
-def get_migration_paths() -> list[Path]:
-	"""Return forward-only SQL migrations in deterministic filename order."""
-	return sorted((Path(__file__).parent / "migrations").glob("*.sql"))

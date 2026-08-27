@@ -1,0 +1,73 @@
+{
+  "batch_id": "mock-batch-inconsistent-001",
+  "source": "ehr-test",
+  "records": [
+    {
+      "id": "patient-1-condition-diabetes",
+      "resourceType": "Condition",
+      "clinicalStatus": { "text": "active" },
+      "code": { "text": "Type 2 Diabetes Mellitus", "coding": [{ "code": "E11" }] },
+      "onsetDateTime": "2019-03-10T08:00:00Z",
+      "abatementDateTime": "2021-06-01T00:00:00Z",
+      "recordedDate": "2019-03-10T08:00:00Z",
+      "note": "INCONSISTENCY: Status is active but abatementDateTime is set (RULE-COND-003). Also onset > abatement would trigger RULE-COND-002 if dates were swapped."
+    },
+    {
+      "id": "patient-1-medication-metformin",
+      "resourceType": "MedicationRequest",
+      "status": "active",
+      "medicationCodeableConcept": { "text": "Metformin 500mg", "coding": [{ "code": "860975" }] },
+      "effectivePeriod": {
+        "start": "2023-11-01T00:00:00Z",
+        "end": "2022-05-01T00:00:00Z"
+      },
+      "note": "INCONSISTENCY: effectivePeriod.start is after effectivePeriod.end (RULE-MED-002). Also active status with past effective end triggers RULE-MED-001."
+    },
+    {
+      "id": "patient-2-condition-hypertension",
+      "resourceType": "Condition",
+      "clinicalStatus": { "text": "active" },
+      "code": { "text": "Essential Hypertension", "coding": [{ "code": "I10" }] },
+      "onsetDateTime": "2027-09-15T00:00:00Z",
+      "recordedDate": "2024-01-20T00:00:00Z",
+      "note": "INCONSISTENCY: onsetDateTime is in the future relative to audit date (RULE-COND-001)."
+    },
+    {
+      "id": "patient-2-medication-lisinopril-a",
+      "resourceType": "MedicationRequest",
+      "status": "active",
+      "medicationCodeableConcept": { "text": "Lisinopril 10mg", "coding": [{ "code": "314076" }] },
+      "note": "INCONSISTENCY: Duplicate medication — same code and status as patient-2-medication-lisinopril-b (RULE-MED-005)."
+    },
+    {
+      "id": "patient-2-medication-lisinopril-b",
+      "resourceType": "MedicationRequest",
+      "status": "active",
+      "medicationCodeableConcept": { "text": "Lisinopril 10mg", "coding": [{ "code": "314076" }] },
+      "note": "INCONSISTENCY: Duplicate medication — same code and status as patient-2-medication-lisinopril-a (RULE-MED-005)."
+    },
+    {
+      "id": "patient-3-condition-asthma",
+      "resourceType": "Condition",
+      "clinicalStatus": { "text": "active" },
+      "code": { "text": "Asthma", "coding": [{ "code": "J45" }] },
+      "onsetDateTime": "2018-04-01T00:00:00Z",
+      "recordedDate": "2018-04-01T00:00:00Z",
+      "meta": { "lastUpdated": "2018-04-01T00:00:00Z" },
+      "note": "INCONSISTENCY: Active condition last updated in 2018 — stale beyond 5-year threshold (RULE-STALE-001)."
+    },
+    {
+      "id": "patient-3-medication-salbutamol",
+      "resourceType": "MedicationRequest",
+      "status": "stopped",
+      "medicationCodeableConcept": { "text": "Salbutamol 100mcg inhaler", "coding": [{ "code": "372897005" }] },
+      "note": "INCONSISTENCY: Medication is stopped but an active CarePlan below still references it (RULE-MED-003)."
+    },
+    {
+      "id": "patient-3-careplan-asthma",
+      "resourceType": "CarePlan",
+      "status": "active",
+      "note": "INCONSISTENCY: Active CarePlan co-exists with a stopped medication (Salbutamol) — triggers RULE-MED-003."
+    }
+  ]
+}
